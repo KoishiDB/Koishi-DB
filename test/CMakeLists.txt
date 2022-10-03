@@ -1,0 +1,25 @@
+cmake_minimum_required(VERSION 3.10)
+
+# include google test module
+include(GoogleTest)
+
+# set the files to generate test
+file(GLOB_RECURSE KOISHIDB_TEST_SOURCES "${PROJECT_SOURCE_DIR}/test/*/*test.cpp")
+
+foreach(koishidb_test_source ${KOISHIDB_TEST_SOURCES})
+    get_filename_component(koishidb_test_filename ${koishidb_test_source} NAME)
+
+    string(REPLACE ".cpp" "" koishidb_test_outputname ${koishidb_test_filename})
+
+    add_executable(${koishidb_test_outputname} EXCLUDE_FROM_ALL ${koishidb_test_source})
+
+    gtest_discover_tests(${koishidb_test_outputname})
+
+    target_link_libraries(${koishidb_test_outputname} koishidb gtest gmock_main)
+
+#    set_target_properties(${koishidb_test_ouputname}
+#            PROPERTIES
+#            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/test"
+#            COMMAND ${bustub_test_name}
+#            )
+endforeach()

@@ -10,12 +10,16 @@ option(KOISHIDB_BUILD_TEST "Build KoishiDB test (currently not enabled)" OFF) # 
 
 # set include path
 set(KOISHIDB_SRC_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/src/include)
-set(KOISHIDB_THIRD_PARTY_DIR ${PROJECT_SOURCE_DIR}/third_party)
+
 
 # include path at the root level
-include_directories(${KOISHIDB_SRC_INCLUDE_DIR} ${KOISHIDB_THIRD_PARTY_DIR})
+include_directories(${KOISHIDB_SRC_INCLUDE_DIR})
+
 
 # add subdirectories
 add_subdirectory(src)
 add_subdirectory(test)
 add_subdirectory(third_party)
+
+# enable google test
+enable_testing()

@@ -1,5 +1,8 @@
 add_library(
         koishidb_memory
         OBJECT
-        extendible_hash.cpp
+        hash.cpp
 )
+
+# TARGET_OBJECTS
+set(ALL_OBJECT_FILES ${ALL_OBJECT_FILES} $<TARGET_OBJECTS:koishidb_memory> PARENT_SCOPE)
