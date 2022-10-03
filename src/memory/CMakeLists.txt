@@ -1,7 +1,7 @@
 add_library(
         koishidb_memory
         OBJECT
-        hash.cpp
+        hash.cc
 )
 
 # TARGET_OBJECTS
