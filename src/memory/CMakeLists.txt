@@ -2,6 +2,7 @@ add_library(
         koishidb_memory
         OBJECT
         hash.cc
+        skiplist.cc
 )
 
 # TARGET_OBJECTS

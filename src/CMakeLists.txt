@@ -4,7 +4,10 @@ add_subdirectory(memory)
 add_library(koishidb STATIC ${ALL_OBJECT_FILES})
 
 # target_link_libraries
-target_link_libraries(koishidb koishidb_memory)
+target_link_libraries(koishidb
+        koishidb_memory
+        koishidb_type
+        )
 
 
 
