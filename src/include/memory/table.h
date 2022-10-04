@@ -12,7 +12,7 @@ namespace koishidb {
         public:
         Table() = default;
         virtual ~Table() = default;
-        virtual bool Get(const K& key, const V& value) = 0;
+        virtual bool Get(const K& key, V& value) = 0;
         virtual void Put(const K& key, const V& value) = 0;
         virtual void Delete(const K& key) = 0;
     };

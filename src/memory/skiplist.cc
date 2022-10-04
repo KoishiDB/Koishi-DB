@@ -1,29 +1,31 @@
 #include "memory/skiplist.h"
+#include "type/slice.h"
 
+#include "logger.h"
 // SkipList needs external synchronization
 
 namespace koishidb {
     template<typename K, typename V>
     SkipList<K, V>::SkipList() {
+        rng();
         head_ = std::make_shared<SkipList<K, V>::Node>(kSkipListNodeMaxLevel);
     }
-
     template<typename K, typename V>
     std::shared_ptr<typename SkipList<K, V>::Node> SkipList<K, V>::Find(const K &key) {
         auto ptr = head_;
-        while (true) {
-            if (ptr->get_key() == key) {
-                return ptr;
+        int cur_level = kSkipListNodeMaxLevel - 1;
+        while (ptr != nullptr) {
+            auto next_ptr = ptr->get_n_node(cur_level);
+            if (next_ptr != nullptr && next_ptr->get_key() < key) {
+                ptr = next_ptr;
+                continue;
             }
-            int i;
-            for (int i = ptr->get_level() - 1; i >= 0; i--) {
-                auto next_ptr = ptr->get_n_node(i);
-                if (next_ptr->get_key() < key) {
-                    ptr = next_ptr;
-                    break;
-                }
+            if (next_ptr != nullptr && next_ptr->get_key() == key) {
+                return next_ptr;
             }
-            if (i == -1) {
+            if (cur_level > 0) {
+                cur_level--;
+            } else {
                 break;
             }
         }
@@ -31,12 +33,13 @@ namespace koishidb {
     }
 
     template<typename K, typename V>
-    bool SkipList<K, V>::Get(const K &key, const V& value) {
+    bool SkipList<K, V>::Get(const K &key, V& value) {
         auto ptr = Find(key);
         if (ptr == nullptr || ptr->get_key_type() == KeyType::kTypeDeletion) {
             return false;
         }
         value = ptr->get_value();
+        return true;
     }
 
     template<typename K, typename V>
@@ -47,26 +50,18 @@ namespace koishidb {
             ptr->set_value(value);
             return;
         }
-        auto new_node = std::make_unique<SkipList<K, V>::Node>(key, value, KeyType::kTypeValue);
-        // insert
+        auto new_node = std::make_shared<SkipList<K, V>::Node>(key, value, KeyType::kTypeValue);
         ptr = head_;
-        for (int i = new_node->get_level() - 1; i >= 0; i--) {
-            while (true) {
-                auto next_ptr = ptr->get_n_node(i);
-                while (next_ptr != nullptr && next_ptr->get_key() < key) {
-                    ptr = next_ptr;
-                }
-                // if next_ptr.get_key() >
-                if (next_ptr == nullptr) {
-                    ptr->get_n_node(i) = new_node;
-                    break;
-                } else {
-                    // next_ptr->key > key
-                    // ptr->key < key
-                    ptr->get_n_node(i) = new_node;
-                    new_node->get_n_node(i) = next_ptr;
-                }
+        int cur_level = new_node->get_level() - 1;
+        while (cur_level >= 0) {
+            auto next_ptr = ptr->get_n_node(cur_level);
+            if (next_ptr != nullptr && next_ptr->get_key() < key) {
+                ptr = next_ptr;
+                continue;
             }
+            ptr->get_n_node(cur_level) = new_node;
+            new_node->get_n_node(cur_level) = next_ptr;
+            cur_level--;
         }
     }
 
@@ -77,4 +72,9 @@ namespace koishidb {
             ptr->set_key_type(KeyType::kTypeDeletion);
         }
     }
+
+    // the template class that might be used
+    template class SkipList<int, int>;
+    template class SkipList<std::string, std::string>;
+    template class SkipList<Slice, Slice>;
 };

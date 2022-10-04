@@ -3,6 +3,7 @@ add_library(
         OBJECT
         hash.cc
         skiplist.cc
+        extendible_hash.cc
 )
 
 # TARGET_OBJECTS

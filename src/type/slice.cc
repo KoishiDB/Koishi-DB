@@ -19,8 +19,24 @@ namespace koishidb {
         assert(n < size_);
         return data_[n];
     }
+    bool Slice::operator==(const Slice &that) const {
+        if (that.size() != size_) {
+            return false;
+        }
+        int ret =  memcmp(data_, that.data(), size_);
+        return ret == 0;
+    }
 
+    bool Slice::operator!=(const Slice &that) const {
+        return !(*this == that);
+    }
 
+    bool Slice::operator<(const Slice &that) const {
+        if (strcmp(this->data(), that.data()) == -1) {
+            return true;
+        }
+        return false;
+    }
     int Compare(const Slice& a, const Slice& b) {
       return strcmp(a.data(), b.data());
     }

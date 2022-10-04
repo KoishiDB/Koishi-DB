@@ -11,14 +11,16 @@ namespace koishidb {
         Slice(const char* d);
         Slice(std::string& s);
         Slice(const char* d, size_t size);
-        Slice(const Slice& that);
+        Slice(const Slice& that) = default; // copyable
+        Slice& operator= (const Slice& that) = default;
         // getters
         const char* data() const;
         size_t size() const;
         bool empty() const;
         char operator[](size_t n) const;
-
-
+        bool operator== (const Slice& that) const;
+        bool operator!= (const Slice& that) const; // const
+        bool operator< (const Slice& that) const;
         friend int Compare(const Slice& a, const Slice &b);
     private:
         const char* data_;

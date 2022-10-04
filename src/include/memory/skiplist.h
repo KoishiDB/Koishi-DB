@@ -3,6 +3,7 @@
 
 #include "memory/table.h"
 #include "common/common.h"
+#include "util/util.h"
 
 #include <vector>
 #include <memory>
@@ -10,25 +11,15 @@
 
 namespace koishidb {
 
-    // util function
-    int RandomHeight() {
-        int height = 1;
-        while (height <= kSkipListNodeMaxLevel && rand() % 2 == 0) {
-            height++;
-        }
-        return height;
-    }
-
     // key should implement std::less() to compare
     template<typename K, typename V>
     class SkipList: public Table<K, V> {
     public:
         explicit SkipList();
         ~SkipList() override = default;
-        bool Get(const K& key, const V& value) override;
+        bool Get(const K& key, V& value) override;
         void Put(const K& key, const V& value) override;
         void Delete(const K& key) override;
-
         // SkipList Node
         struct Node {
         public:
@@ -36,9 +27,8 @@ namespace koishidb {
             V get_value() const { return value; }
             KeyType get_key_type() const { return type; }
             int get_level() const { return level; }
-            void set_key_type(KeyType& type) { type = type; }
-            void set_value(V& value) { value = value; }
-
+            void set_key_type(const KeyType& type) { this->type = type; }
+            void set_value(const V& value) { this->value = value; }
 
             Node(K key, V value, KeyType type) : key(key), value(value), type(type) {
                 level = RandomHeight();
@@ -46,15 +36,14 @@ namespace koishidb {
             }
             // only be used with the dummy node;
             Node(int level) {
-                level = level;
+                this->level = level;
                 next.assign(level, nullptr);
             }
-            std::shared_ptr<SkipList<K, V>::Node> get_n_node(int n) const {
+            std::shared_ptr<SkipList<K, V>::Node>& get_n_node(int n)  {
                 assert(n < level);
                 return next[n];
             }
         private:
-
             K key;
             V value;
             KeyType type;
@@ -66,5 +55,7 @@ namespace koishidb {
         std::shared_ptr<SkipList<K, V>::Node> Find(const K& key);
     };
 }
+
+
 
 #endif

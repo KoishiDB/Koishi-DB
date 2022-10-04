@@ -1,5 +1,4 @@
 #include "memory/hash.h"
-
 #include "gtest/gtest.h"
 
 namespace koishidb {
