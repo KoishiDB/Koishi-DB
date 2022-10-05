@@ -73,8 +73,8 @@ namespace koishidb {
             int x = rand() % 100000;
             right[x] = -1;
             list.Delete(x);
-            }
-            for (int i = 0; i < 100000; ++i) {
+        }
+        for (int i = 0; i < 100000; ++i) {
             int ret;
             bool flag = list.Get(i, ret);
             EXPECT_EQ(flag, right[i] != -1);
