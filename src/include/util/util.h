@@ -12,7 +12,7 @@ namespace koishidb {
     }
     inline int RandomHeight() {
         int height = 1;
-        while (height <= kSkipListNodeMaxLevel && rand() % 2 == 0) {
+        while (height < kSkipListNodeMaxLevel && rand() % 2 == 0) {
             height++;
         }
         return height;
