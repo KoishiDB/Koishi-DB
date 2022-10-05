@@ -1,15 +1,14 @@
 #include "memory/skiplist.h"
 #include "type/slice.h"
-#include "logger.h"
 #include "gtest/gtest.h"
-#include <string>
+
+
 
 namespace koishidb {
     TEST(SkipList_test, SkipListSampleTest) {
         SkipList<int, int> list;
         for (int i = 1; i <= 100; i++) {
             list.Put(i, i + 1);
-            LOG_INFO("now put %d", i);
         }
         for (int i = 1; i <= 100; i++) {
             int val;

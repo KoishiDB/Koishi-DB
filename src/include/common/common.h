@@ -5,6 +5,12 @@
 // this file defines the constant that may be used in other files
 namespace koishidb {
     constexpr int kSkipListNodeMaxLevel = 12;
+
+    // enum class
+    enum class KeyType {
+        kTypeDeletion,
+        kTypeValue,
+    };
 };
 
 #endif

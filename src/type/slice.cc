@@ -1,4 +1,5 @@
 #include "type/slice.h"
+#include "logger.h"
 
 namespace koishidb {
     const char *Slice::data() const {
@@ -40,4 +41,16 @@ namespace koishidb {
     int Compare(const Slice& a, const Slice& b) {
       return strcmp(a.data(), b.data());
     }
+
+    std::string Slice::ToString() {
+        return std::string(data_, size_);
+    }
+
+    void Slice::Advance(size_t n) {
+        assert(n < size_);
+        data_ += n;
+        size_ -= n;
+    }
+
 };
+

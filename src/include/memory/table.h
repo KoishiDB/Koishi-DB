@@ -3,10 +3,7 @@
 
 // table is interface
 namespace koishidb {
-    enum class KeyType {
-        kTypeDeletion,
-        kTypeValue,
-    };
+
     template<typename K, typename V>
     class Table {
         public:
