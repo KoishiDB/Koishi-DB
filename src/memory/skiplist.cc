@@ -7,7 +7,6 @@
 namespace koishidb {
     template<typename K, typename V>
     SkipList<K, V>::SkipList() {
-        rng();
         head_ = std::make_shared<SkipList<K, V>::Node>(kSkipListNodeMaxLevel);
     }
     template<typename K, typename V>
@@ -50,6 +49,8 @@ namespace koishidb {
             ptr->set_value(value);
             return;
         }
+        size_ += (sizeof(key) + sizeof(value) + 11); // max bytes of (varint32) == 5, 11 = 5 + 5 + 1
+                                                    // key_type key_len value_len
         auto new_node = std::make_shared<SkipList<K, V>::Node>(key, value, KeyType::kTypeValue);
         ptr = head_;
         int cur_level = new_node->get_level() - 1;
@@ -63,6 +64,7 @@ namespace koishidb {
             new_node->get_n_node(cur_level) = next_ptr;
             cur_level--;
         }
+
     }
 
     template<typename K, typename V>
@@ -73,6 +75,10 @@ namespace koishidb {
         }
     }
 
+    template<typename K, typename V>
+    size_t SkipList<K, V>::EstimatedSize() {
+        return size_;
+    }
     // the template class that might be used
     template class SkipList<int, int>;
     template class SkipList<std::string, std::string>;

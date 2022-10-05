@@ -17,6 +17,7 @@ namespace koishidb {
         }
         return height;
     }
+
 }
 
 #endif

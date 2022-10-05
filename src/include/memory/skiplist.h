@@ -5,6 +5,7 @@
 #include "common/common.h"
 #include "util/util.h"
 
+
 #include <vector>
 #include <memory>
 #include <cstdlib>
@@ -21,6 +22,7 @@ namespace koishidb {
         bool Get(const K& key, V& value) override;
         void Put(const K& key, const V& value) override;
         void Delete(const K& key) override;
+        size_t EstimatedSize() override; // estimate the size that the space when the skiplist dump to the disk
         // SkipList Node
         struct Node {
         public:
@@ -44,6 +46,7 @@ namespace koishidb {
                 assert(n < level);
                 return next[n];
             }
+
         private:
             K key;
             V value;
@@ -53,6 +56,7 @@ namespace koishidb {
         };
     private:
         std::shared_ptr<SkipList<K, V>::Node> head_;
+        size_t size_;
         std::shared_ptr<SkipList<K, V>::Node> Find(const K& key);
     };
 }

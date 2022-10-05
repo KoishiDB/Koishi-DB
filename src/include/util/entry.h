@@ -20,6 +20,7 @@ namespace koishidb {
         std::string value;
     };
     // parsed from
+    // TODO: need some test to test parser
     inline Entry ParsedFromSlice(Slice* s) {
         Entry e;
         e.type = (*s)[0] == 1 ? KeyType::kTypeValue : KeyType::kTypeDeletion;
