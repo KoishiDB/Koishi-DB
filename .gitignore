@@ -1,5 +1,6 @@
 third_party/**
 cmake-build-debug/**
 build/**
-./vscode
+.vscode/**
 !third_party/CmakeLists.txt
+.idea/**

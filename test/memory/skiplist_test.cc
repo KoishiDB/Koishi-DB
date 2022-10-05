@@ -51,4 +51,33 @@ namespace koishidb {
         bool flag = list.Get(Slice("slice"), ret);
         EXPECT_FALSE(flag);
     }
+
+    TEST(SkipList_test, SkipListRandomTest) {
+        srand(0);
+        SkipList<int, int> list;
+        std::vector<int> right(100000, -1);
+        for (int i = 0; i < 100000; ++i) {
+            int x = rand() % 100000, y = rand() % 100000;
+            list.Put(x, y);
+            right[x] = y;
+        }
+        for (int i = 0; i < 100000; ++i) {
+            int ret;
+            bool flag = list.Get(i, ret);
+            EXPECT_EQ(flag, right[i] != -1);
+            if (right[i] != -1) {
+            EXPECT_EQ(ret, right[i]);
+            }
+        }
+        for (int i = 0; i < 100000; ++i) {
+            int x = rand() % 100000;
+            right[x] = -1;
+            list.Delete(x);
+            }
+            for (int i = 0; i < 100000; ++i) {
+            int ret;
+            bool flag = list.Get(i, ret);
+            EXPECT_EQ(flag, right[i] != -1);
+        }
+    };
 };
