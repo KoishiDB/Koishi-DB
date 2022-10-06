@@ -8,10 +8,23 @@ namespace koishidb {
     template<typename K, typename V>
     SkipList<K, V>::SkipList() {
         rng();
-        head_ = std::make_shared<SkipList<K, V>::Node>(kSkipListNodeMaxLevel);
+        head_ = new SkipList<K, V>::Node(kSkipListNodeMaxLevel);
     }
+
     template<typename K, typename V>
-    std::shared_ptr<typename SkipList<K, V>::Node> SkipList<K, V>::Find(const K &key) {
+    SkipList<K, V>::~SkipList() {
+        auto ptr = head_;
+        auto cur = ptr->get_n_node(0);
+        while (cur != nullptr) {
+            auto next = cur->get_n_node(0);
+            delete cur;
+            cur = next;
+        }
+        delete head_;
+    }
+    
+    template<typename K, typename V>
+    typename SkipList<K, V>::Node* SkipList<K, V>::Find(const K &key) {
         auto ptr = head_;
         int cur_level = kSkipListNodeMaxLevel - 1;
         while (ptr != nullptr) {
@@ -50,7 +63,7 @@ namespace koishidb {
             ptr->set_value(value);
             return;
         }
-        auto new_node = std::make_shared<SkipList<K, V>::Node>(key, value, KeyType::kTypeValue);
+        auto new_node = new SkipList<K, V>::Node(key, value, KeyType::kTypeValue);
         ptr = head_;
         int cur_level = new_node->get_level() - 1;
         while (cur_level >= 0) {
@@ -59,8 +72,8 @@ namespace koishidb {
                 ptr = next_ptr;
                 continue;
             }
-            ptr->get_n_node(cur_level) = new_node;
-            new_node->get_n_node(cur_level) = next_ptr;
+            ptr->set_n_node(cur_level, new_node);
+            new_node->set_n_node(cur_level, next_ptr);
             cur_level--;
         }
     }
@@ -70,6 +83,21 @@ namespace koishidb {
         auto ptr = Find(key);
         if (ptr != nullptr) {
             ptr->set_key_type(KeyType::kTypeDeletion);
+            return;
+        }
+        V tmp;
+        auto new_node = new SkipList<K, V>::Node(key, tmp, KeyType::kTypeDeletion);
+        ptr = head_;
+        int cur_level = new_node->get_level() - 1;
+        while (cur_level >= 0) {
+            auto next_ptr = ptr->get_n_node(cur_level);
+            if (next_ptr != nullptr && next_ptr->get_key() < key) {
+                ptr = next_ptr;
+                continue;
+            }
+            ptr->set_n_node(cur_level, new_node);
+            new_node->set_n_node(cur_level, next_ptr);
+            cur_level--;
         }
     }
 

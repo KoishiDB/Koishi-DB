@@ -17,7 +17,7 @@ namespace koishidb {
     class SkipList: public Table<K, V> {
     public:
         explicit SkipList();
-        ~SkipList() override = default;
+        ~SkipList();
         bool Get(const K& key, V& value) override;
         void Put(const K& key, const V& value) override;
         void Delete(const K& key) override;
@@ -40,20 +40,56 @@ namespace koishidb {
                 this->level = level;
                 next.assign(level, nullptr);
             }
-            std::shared_ptr<SkipList<K, V>::Node>& get_n_node(int n)  {
+            SkipList<K, V>::Node* get_n_node(int n)  {
                 assert(n < level);
                 return next[n];
+            }
+            void set_n_node(int n, SkipList<K, V>::Node* node) {
+                assert(n < level);
+                next[n] = node;
             }
         private:
             K key;
             V value;
             KeyType type;
             int level;
-            std::vector<std::shared_ptr<SkipList<K, V>::Node>> next; // contains the next node
+            std::vector<SkipList<K, V>::Node*> next; // contains the next node
+        };
+
+        struct Iterator {
+        public:
+            Iterator();
+            Iterator(const Iterator& that) = default;
+            Iterator& operator=(const Iterator& that) = default;
+            Iterator(const SkipList<K, V>& list) { node = list.head_->get_n_node(0); }
+            ~Iterator() = default;
+
+            K Key() { return node->get_key(); };
+            V Value() { return node->get_value(); } 
+            KeyType Type() { return node->get_key_type(); }
+            bool Valid() { return node != nullptr; }
+            
+            Iterator& operator++() {
+                node = node->get_n_node(0);
+                return *this;
+            }
+            Iterator operator++(int) {
+                Iterator tmp = *this;
+                ++*this;
+                return tmp;
+            }
+            Iterator Next() {
+                Iterator tmp = *this;
+                ++tmp;
+                return tmp;
+            }
+
+        private:
+            SkipList<K, V>::Node* node;
         };
     private:
-        std::shared_ptr<SkipList<K, V>::Node> head_;
-        std::shared_ptr<SkipList<K, V>::Node> Find(const K& key);
+        SkipList<K, V>::Node* head_;
+        SkipList<K, V>::Node* Find(const K& key);
     };
 }
 

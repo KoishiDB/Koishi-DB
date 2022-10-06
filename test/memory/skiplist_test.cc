@@ -5,26 +5,6 @@
 
 
 namespace koishidb {
-    TEST(SkipList_test, SkipListSampleTest) {
-        SkipList<int, int> list;
-        for (int i = 1; i <= 100; i++) {
-            list.Put(i, i + 1);
-        }
-        for (int i = 1; i <= 100; i++) {
-            int val;
-            list.Get(i, val);
-            EXPECT_EQ(val, i + 1);
-        }
-        for (int i = 1; i <= 100; i += 2) {
-            list.Delete(i);
-        }
-        for (int i = 1; i <= 100; i += 2) {
-            int val;
-            bool flag = list.Get(i, val);
-            EXPECT_EQ(flag, false);
-        }
-    }
-
     TEST(SkipList_test, SkipListStringTest) {
         SkipList<std::string, std::string> list;
         list.Put("koishi", "cute");
@@ -54,14 +34,15 @@ namespace koishidb {
 
     TEST(SkipList_test, SkipListRandomTest) {
         srand(0);
+        int num = 10000;
         SkipList<int, int> list;
-        std::vector<int> right(100000, -1);
-        for (int i = 0; i < 100000; ++i) {
-            int x = rand() % 100000, y = rand() % 100000;
+        std::vector<int> right(num, -1);
+        for (int i = 0; i < num; ++i) {
+            int x = rand() % num, y = rand() % num;
             list.Put(x, y);
             right[x] = y;
         }
-        for (int i = 0; i < 100000; ++i) {
+        for (int i = 0; i < num; ++i) {
             int ret;
             bool flag = list.Get(i, ret);
             EXPECT_EQ(flag, right[i] != -1);
@@ -69,15 +50,105 @@ namespace koishidb {
             EXPECT_EQ(ret, right[i]);
             }
         }
-        for (int i = 0; i < 100000; ++i) {
-            int x = rand() % 100000;
+        for (int i = 0; i < num; ++i) {
+            int x = rand() % num;
             right[x] = -1;
             list.Delete(x);
         }
-        for (int i = 0; i < 100000; ++i) {
+        for (int i = 0; i < num; ++i) {
             int ret;
             bool flag = list.Get(i, ret);
             EXPECT_EQ(flag, right[i] != -1);
+        }
+    };
+
+    TEST(SkipList_test, SkipListIteratorTest1) {
+        srand(0);
+        int num = 10000;
+        SkipList<int, int> list;
+        std::vector<int> right(num, -1);
+        for (int i = 0; i < num; ++i) {
+            int x = rand() % num, y = rand() % num;
+            list.Put(x, y);
+            right[x] = y;
+        }
+        for (int i = 0; i < num; ++i) {
+            int x = rand() % num;
+            right[x] = -1;
+            list.Delete(x);
+        }
+        
+        SkipList<int, int>::Iterator it(list);
+        std::vector<int> test(num, -1);
+        while (it.Valid()) {
+            int i = it.Key();
+            if (it.Type() != KeyType::kTypeDeletion) {
+                test[i] = it.Value();                
+            }
+            ++it;
+        }
+        for (int i = 0; i < num; ++i) {
+            EXPECT_EQ(test[i], right[i]);
+        }
+    };
+
+    TEST(SkipList_test, SkipListIteratorTest2) {
+        srand(0);
+        int num = 10000;
+        SkipList<int, int> list;
+        std::vector<int> right(num, -1);
+        for (int i = 0; i < num; ++i) {
+            int x = rand() % num, y = rand() % num;
+            list.Put(x, y);
+            right[x] = y;
+        }
+        for (int i = 0; i < num; ++i) {
+            int x = rand() % num;
+            right[x] = -1;
+            list.Delete(x);
+        }
+        
+        SkipList<int, int>::Iterator it(list);
+        std::vector<int> test(num, -1);
+        while (it.Valid()) {
+            int i = it.Key();
+            if (it.Type() != KeyType::kTypeDeletion) {
+                test[i] = it.Value();                
+            }
+            it++;
+        }
+        for (int i = 0; i < num; ++i) {
+            EXPECT_EQ(test[i], right[i]);
+        }
+    };
+
+    TEST(SkipList_test, SkipListIteratorTest3) {
+        srand(0);
+        int num = 10000;
+        SkipList<int, int> list;
+        std::vector<int> right(num, -1);
+        for (int i = 0; i < num; ++i) {
+            int x = rand() % num, y = rand() % num;
+            list.Put(x, y);
+            right[x] = y;
+        }
+        for (int i = 0; i < num; ++i) {
+            int x = rand() % num;
+            right[x] = -1;
+            list.Delete(x);
+        }
+        
+        SkipList<int, int>::Iterator it(list);
+        std::vector<int> test(num, -1);
+        while (it.Valid()) {
+            int i = it.Key();
+            if (it.Type() != KeyType::kTypeDeletion) {
+                test[i] = it.Value();                
+            }
+            it = it.Next();
+        }
+        for (int i = 0; i < num; ++i) {
+            EXPECT_EQ(test[i], right[i]);
         }
     };
 };
