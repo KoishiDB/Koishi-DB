@@ -1,7 +1,19 @@
 #ifndef KOISHIDB_SRC_INCLUDE_DB_H
 #define KOISHIDB_SRC_INCLUDE_DB_H
 
-namespace koishidb {
+#include <string>
+#include "memory/write_batch.h"
 
+namespace koishidb {
+    class DB {
+        // TODO: add the option of write and read options
+        virtual void Put(const Slice& key, const Slice& value) = 0;
+
+        virtual bool Get(const Slice& key, std::string* value) = 0;
+
+        virtual void Delete(const Slice& key) = 0;
+
+        virtual void Write(WriteBatch* update) = 0;
+    };
 };
 #endif

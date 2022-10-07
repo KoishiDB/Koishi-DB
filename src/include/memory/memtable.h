@@ -37,10 +37,10 @@ namespace koishidb {
       std::shared_mutex rwlock_; // reader and writer lock, when is_mutable_ == true, should be used
   };
 
-
+  // TODO
   class MemtableView {
   public:
-      MemtableView(): memtable_(new Memtable(new SkipList<std::string, std::string>())), immutable_memtable_(nullptr) {}
+      MemtableView() = default;
 
       ~MemtableView() {
           if (immutable_memtable_ != nullptr) {
