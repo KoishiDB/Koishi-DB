@@ -66,13 +66,35 @@ namespace koishidb {
       const char* data = dst->data();
       const char* limit = data + dst->size();
       const char* q = DecodeVarint32(data, value);
+
+      // 这一行Slice是一个tmp 对象吗？
       *dst = Slice(q, limit- q);
   }
 
   // GetFixedBytes to result
   void GetFixedBytes(Slice* dst, Slice* result, size_t n) {
       assert(n <= dst->size());
+      // can use move assignment to speed up
       *result = Slice(dst->data(), n);
       *dst = Slice(dst->data() + n, dst->size() - n);
+  }
+
+
+  void PutLengthPrefixedSlice(std::string* dst ,const Slice& value) {
+      PutVarint32(value.size(), dst);
+      dst->append(value.data(), value.size());
+  }
+
+  // the data_ will auto advance
+  // LengthPrefixed -> varint + value
+  void GetLengthPrefixedSlice(std::string* dst, Slice* src) {
+      uint32_t len;
+      Slice tmp = *src; //
+      GetVarint32(src, &len);
+      // dst->append
+      size_t offset = src->data() - tmp.data();
+      dst->append(tmp.data(), offset);
+      dst->append(src->data(), len);
+      src->Advance(len);
   }
 };

@@ -35,14 +35,15 @@ namespace koishidb {
         return;
     }
 
-    // MakeRoom for writer to write;
+    MakeRoomForWriter(); //
     Writer *last_writer = &w;
 
+    // TODO() BuildWriteBatch
     // get the write batch from the deque
     WriteBatch* writer_batch = BuildWriteBatch();
 
     // Insert into memtable_;
-    InsertWriteBatch(writer_batch, memtbale_);
+    InsertWriteBatch(writer_batch, memtable_);
 
     while (true) {
           Writer* ready = writers_.front();

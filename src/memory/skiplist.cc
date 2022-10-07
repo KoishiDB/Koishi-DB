@@ -33,7 +33,7 @@ namespace koishidb {
 //
 //    //  >= 大于  >=
     template<typename K, typename Comparator>
-    bool SkipList<K, Comparator>::Insert(Slice &memtable_key) {
+    bool SkipList<K, Comparator>::Insert(const Slice &memtable_key) {
         // TODO()
     }
 

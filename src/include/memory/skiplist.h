@@ -9,6 +9,7 @@
 #include <memory>
 #include <cstdlib>
 #include <cassert>
+#include <shared_mutex>
 
 namespace koishidb {
 
@@ -18,7 +19,7 @@ namespace koishidb {
     public:
         explicit SkipList(Comparator cmp);
         ~SkipList() = default;
-        bool Insert(Slice& memtable_key);
+        bool Insert(const Slice& memtable_key);
         bool FindFirstGreaterOrEqual(Slice& memtable_key, Slice* result);
         struct Node {
         public:
@@ -46,6 +47,7 @@ namespace koishidb {
         };
     private:
         Comparator cmp_;
+        std::shared_mutex rwlock_;
         std::shared_ptr<SkipList<K, Comparator>::Node> head_;
         size_t size_;
     };

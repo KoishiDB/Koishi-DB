@@ -6,12 +6,15 @@
 
 #include "util/util.h"
 #include "common/common.h"
+#include "memory/memtable.h"
 
 namespace koishidb {
-    // WriteBatch to
+    // WriteBatch format
+
+    //
     class WriteBatch {
     public:
-        WriteBatch() {}
+        WriteBatch();
 
         WriteBatch(const WriteBatch& that) = default;
 
@@ -21,14 +24,33 @@ namespace koishidb {
 
         void Delete(const Slice& K);
 
-        void Append(const WriteBatch& that);
         // iterate the rep_ to insert into the skiplist
-        bool Iterator();
+        void InsertAll(Memtable* memtable);
 
-        size_t EstimatedSize();
+        void Append(const WriteBatch& that);
+
+        size_t EstimatedSize() { return rep_.size(); }
+
+        void Clear();
     private:
-
+        friend class WriteBatchInternal;
         std::string rep_;
+    };
+
+    // provide static member functions to hide the interface that we don't want to expose to outer
+    class WriteBatchInternal {
+    public:
+        static int Count(WriteBatch* w);
+
+        static int SetCount(WriteBatch* w, int count);
+
+        static void Append(WriteBatch* src, WriteBatch* dst);
+
+        static void InsertIntoMemtable(WriteBatch* src, Memtable* memtable);
+
+        static size_t Bytes(WriteBatch* w);
+
+        static SequenceNumber GetSequenceNumber(WriteBatch* w);
     };
 };
 

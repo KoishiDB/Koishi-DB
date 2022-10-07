@@ -19,5 +19,6 @@ namespace koishidb {
 
     void GetFixedBytes(Slice* dst, Slice* result, size_t n);
 
+    void PutLengthPrefixedSlice(std::string* dst, const Slice& value);
 };
 #endif
