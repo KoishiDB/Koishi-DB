@@ -69,11 +69,10 @@ namespace koishidb {
       *dst = Slice(q, limit- q);
   }
 
-  void GetFixedBytes(Slice* dst, std::string* result, size_t n) {
+  // GetFixedBytes to result
+  void GetFixedBytes(Slice* dst, Slice* result, size_t n) {
       assert(n <= dst->size());
-      for (int i = 0; i < n; i++) {
-          result->push_back((*dst)[i]);
-      }
+      *result = Slice(dst->data(), n);
       *dst = Slice(dst->data() + n, dst->size() - n);
   }
 };

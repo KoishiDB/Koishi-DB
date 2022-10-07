@@ -4,6 +4,7 @@ add_library(
         hash.cc
         skiplist.cc
         extendible_hash.cc
+        memtable.cc
 )
 
 # TARGET_OBJECTS

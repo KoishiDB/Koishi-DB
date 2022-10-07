@@ -17,7 +17,7 @@ namespace koishidb {
 
     void GetVarint32(Slice* dst, uint32_t* value);
 
-    void GetFixedBytes(Slice* dst, std::string* result, size_t n);
+    void GetFixedBytes(Slice* dst, Slice* result, size_t n);
 
 };
 #endif
