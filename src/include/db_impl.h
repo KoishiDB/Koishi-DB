@@ -24,6 +24,7 @@ namespace koishidb {
         struct Writer; // declare here
         std::deque<Writer* > writers_;
         std::shared_mutex rwlock_;
+        std::mutex cv_lock_; // for condition variable
         Memtable memtable_;
     };
 };

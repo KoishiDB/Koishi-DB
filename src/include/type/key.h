@@ -13,6 +13,21 @@ namespace koishidb {
     // internal_key ...
     // value_len ...
     // value
+
+    // key value
+    // memtable_key ->
+    // varint internal_key length -> var
+    // Slice-> internal_key ->
+    // varint value length -> varint
+    // value
+
+    // ->
+    // internal_key = user_key + tag
+    // tag -> sequence | keyType
+    // tag = sequence << 8 | keyType -> 1.Kvalue 2. KDeletion
+
+    // user_key -> key, value
+    //
     struct Entry {
         Slice internal_key; // 进行一个大修改 //
         Slice value;
@@ -29,7 +44,6 @@ namespace koishidb {
 
         GetVarint32(s, &len);
         GetFixedBytes(s, &e.value, len);
-
     }
 
     // use a std::string buffer, append
@@ -38,6 +52,7 @@ namespace koishidb {
         buffer->append(e.internal_key.data());
         PutVarint32(e.value.size(), buffer);
         buffer->append(e.value.data());
+    }
 };
 
 

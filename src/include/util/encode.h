@@ -8,7 +8,7 @@
 #include "type/slice.h"
 
 namespace koishidb {
-
+    
     size_t EncodeVarint32(uint32_t value, char* dst);
 
     const char* DecodeVarint32(const char* dst, uint32_t* value);

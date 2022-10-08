@@ -79,7 +79,6 @@ namespace koishidb {
       *dst = Slice(dst->data() + n, dst->size() - n);
   }
 
-
   void PutLengthPrefixedSlice(std::string* dst ,const Slice& value) {
       PutVarint32(value.size(), dst);
       dst->append(value.data(), value.size());

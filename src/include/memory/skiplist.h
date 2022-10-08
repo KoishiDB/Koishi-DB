@@ -20,6 +20,7 @@ namespace koishidb {
         explicit SkipList(Comparator cmp);
         ~SkipList() = default;
         bool Insert(const Slice& memtable_key);
+        // user_key -> sequence
         bool FindFirstGreaterOrEqual(Slice& memtable_key, Slice* result);
         struct Node {
         public:

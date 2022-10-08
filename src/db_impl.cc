@@ -1,5 +1,8 @@
 #include "db_impl.h"
 #include <condition_variable>
+#include <mutex>
+
+
 
 namespace koishidb {
 
@@ -26,16 +29,20 @@ namespace koishidb {
   void DBimpl::Write(WriteBatch *update) {
     Writer w(update); // generate a writer
 
+    // exclusive lock
+    std::unique_lock<std::shared_mutex> lock(rwlock_);
     writers_.push_back(&w);
     if (!w.done && &w != writers_.front()) {
-        w.cv.wait(); // conditioncal_
+        std::unique_lock<std::mutex> cv_lock(cv_lock_, std::adopt_lock);
+        w.cv.wait(cv_lock);
+        cv_lock.release();
     }
     // the task has been finished
     if (w.done) {
         return;
     }
 
-    MakeRoomForWriter(); //
+    MakeRoomForWriter(); // immutable
     Writer *last_writer = &w;
 
     // TODO() BuildWriteBatch
@@ -43,7 +50,7 @@ namespace koishidb {
     WriteBatch* writer_batch = BuildWriteBatch();
 
     // Insert into memtable_;
-    InsertWriteBatch(writer_batch, memtable_);
+    writer_batch->InsertAll(&memtable_);
 
     while (true) {
           Writer* ready = writers_.front();
