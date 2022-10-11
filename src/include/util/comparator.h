@@ -9,7 +9,7 @@ namespace koishidb {
 
       // 0 means equal, 1 means internal_key1 > internal_key2, -1 means internal_key1 < internal_key2
       // 按照user_key 升序, seq降序排列
-      int operator()(Slice& internal_key1, Slice& internal_key2) const {
+      int operator()(const Slice& internal_key1, const Slice& internal_key2) const {
           Slice *user_key1, *user_key2;
           SequenceNumber  *seq1, *seq2;
           ExtractUserKey(internal_key1, user_key1, seq1);
