@@ -11,17 +11,20 @@ namespace koishidb {
 
 
     // use Slice rather Slice& to make the metable_key untouched
-    inline void ExtractInternalKey(Slice memtable_key, Slice* internal_key) {
-        // In fact, metable_key is the entry that inserted into the skiplist
-        uint32_t internal_key_len;
-        GetVarint32(&memtable_key, &internal_key_len);
-        GetFixedBytes(&memtable_key, internal_key, internal_key_len);
-    }
+    void ExtractInternalKey(Slice metable_key, Slice* internal_key);
 
+<<<<<<< HEAD
     inline void ExtractUserKey(const Slice& internal_key, Slice* user_key, SequenceNumber* number) {
         *user_key = Slice(internal_key.data(), internal_key.size() - 8); //
         *number = *reinterpret_cast<const SequenceNumber*>(internal_key.data()) >> 8;
     }
+=======
+    void ExtractUserKey(Slice& internal_key, Slice* user_key, SequenceNumber* number);
+
+    Slice CreateInternalKey(const Slice& user_key, SequenceNumber snapshot);
+
+    Slice CreateMemtableKey(const Slice& user_key, SequenceNumber snapshot);
+>>>>>>> 5a918a0c8282b38a195d2895dbded31c8081b132
 
     // init to make skiplist node height random
     inline void rng() {
@@ -34,7 +37,6 @@ namespace koishidb {
         }
         return height;
     }
-
 
 }
 

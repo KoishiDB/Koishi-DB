@@ -7,6 +7,7 @@
 #include <string>
 #include <shared_mutex>
 #include <queue>
+#include <atomic>
 
 namespace koishidb {
   class Memtable {
@@ -23,15 +24,17 @@ namespace koishidb {
       size_t EstimatedSize();
 
       // TODO: add the status later and use iterator to seek key and value later.
-      bool MemtableGet(const std::string& key, std::string& value);
+      bool Get(const Slice& memtable_key, std::string* result);
 
       void Insert(const Slice& memtable_key);
+
   private:
+
       SkipList<Slice, Comparator>* table_; // table might be skiplist, balanced tree or other data structs that
                                                // implement the interface of table
       int ref_; // reference
 
-      bool is_mutable_;
+      std::atomic<bool> imm_;  //
 
       std::shared_mutex rwlock_; // reader and writer lock, when is_mutable_ == true, should be used
   };

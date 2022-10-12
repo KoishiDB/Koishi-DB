@@ -7,52 +7,19 @@
 #include "util/util.h"
 
 namespace koishidb {
+    class InternalKey {
+        // TODO,
+    public:
+        InternalKey() = default;
+        InternalKey(const Slice& user_key, SequenceNumber sequence, KeyType type) {
 
-    // format
-    // internal_key_len varint
-    // internal_key ...
-    // value_len ...
-    // value
-
-    // key value
-    // memtable_key ->
-    // varint internal_key length -> var
-    // Slice-> internal_key ->
-    // varint value length -> varint
-    // value
-
-    // ->
-    // internal_key = user_key + tag
-    // tag -> sequence | keyType
-    // tag = sequence << 8 | keyType -> 1.Kvalue 2. KDeletion
-
-    // user_key -> key, value
-    //
-    struct Entry {
-        Slice internal_key; // 进行一个大修改 //
-        Slice value;
+        }
+    private:
+        std::string rep_;
     };
 
+    InternalKey TransToInternalKey(const Slice& key);
 
-    // parsed from
-    // TODO: need some test to test parser
-    inline Entry ParsedFromSlice(Slice* s) {
-        Entry e;
-        uint32_t len;
-        GetVarint32(s, &len);
-        GetFixedBytes(s, &e.internal_key, len);
-
-        GetVarint32(s, &len);
-        GetFixedBytes(s, &e.value, len);
-    }
-
-    // use a std::string buffer, append
-    inline void ParsedIntoBuffer(std::string* buffer, Entry& e) {
-        PutVarint32(e.internal_key.size(), buffer);
-        buffer->append(e.internal_key.data());
-        PutVarint32(e.value.size(), buffer);
-        buffer->append(e.value.data());
-    }
 };
 
 

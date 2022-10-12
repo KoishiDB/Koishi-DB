@@ -11,6 +11,7 @@
 
 namespace koishidb {
 
+    // Is the scheduler of the DB storage part
     class DBimpl: DB {
     public:
         void Put(const Slice& key, const Slice& value);
@@ -20,12 +21,27 @@ namespace koishidb {
         void Delete(const Slice& key);
 
         void Write(WriteBatch* update);
+
+        // when a new writer comes, it should always invoke this function to make room for it;
+        void MakeRoomForWrite();
+
+        void MaybeScheduleCompaction();
+
+        void BackGroundCall();
+
+        void BackGroundCompaction();
+
+        void CompactMemtable();
+
     private:
         struct Writer; // declare here
         std::deque<Writer* > writers_;
         std::shared_mutex rwlock_;
-        std::mutex cv_lock_; // for condition variable
-        Memtable memtable_;
+        std::mutex cv_lock_; // used only for condition variable
+        Memtable* memtable_;
+        Memtable* immutable_memtable_;
+        std::condition_variable background_work_finish_signal_; // used to notify the background compaction done
+        bool background_compaction_schedule_;
     };
 };
 
