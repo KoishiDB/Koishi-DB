@@ -11,7 +11,7 @@
 namespace koishidb {
     // WriteBatch format
 
-    //
+    // kHeader = 8 4 sequence 4 count -> KeyType varint -> user_key varint_ value
     class WriteBatch {
     public:
         WriteBatch();

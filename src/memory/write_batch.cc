@@ -32,13 +32,15 @@ namespace koishidb {
     void WriteBatch::InsertAll(Memtable* memtable) {
         int count = WriteBatchInternal::Count(this);
         SequenceNumber number = WriteBatchInternal::GetSequenceNumber(this);
-        const char* start = rep_.data() + 8; //
         Slice entries(rep_);
-        entries.Advance(8); //
+        entries.Advance(8);
         auto ProcessMemtableKey = [&](char key_type) -> Slice {
             std::string buffer;
             SequenceNumber tag = (number << 8) | key_type;
+            number++;
             PutLengthPrefixedSlice(&buffer, entries);
+            const char* tag_ptr = reinterpret_cast<const char*>(&tag);
+            buffer.append(tag_ptr, 8);
             if (key_type == static_cast<char>(KeyType::kTypeValue)) {
                 PutLengthPrefixedSlice(&buffer, entries);
             }
