@@ -2,6 +2,7 @@
 #define KOISHIDB_SRC_INCLUDE_COMMON_COMMON_H
 
 #include <cstddef>
+#include <cstdint>
 
 // this file defines the constant that may be used in other files
 namespace koishidb {
@@ -12,7 +13,7 @@ namespace koishidb {
     constexpr int kL0MaxFiles = 10;// should be modified later
     constexpr int kMaxMemtableSize = 4096;
 
-    using SequenceNumber = long long;
+    using SequenceNumber = uint32_t;
 
     // enum class
     enum class KeyType {
