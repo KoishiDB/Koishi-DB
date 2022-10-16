@@ -4,6 +4,7 @@ add_library(
         hash.cc
         extendible_hash.cc
         memtable.cc
+        write_batch.cc
 )
 
 # TARGET_OBJECTS

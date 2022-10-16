@@ -11,8 +11,11 @@
 namespace koishidb {
     // WriteBatch format
 
-    // kHeader = 8
-    // sequence(4) | count(4) -> KeyType varint -> user_key varint_ value
+    // kWriteBatchHeader = 12
+    // sequence(8) | count(4)
+    // -> KeyType varint (but now it's char)
+    // -> user_key varint32 value
+    // user_key = key | value
     class WriteBatch {
     public:
         WriteBatch();

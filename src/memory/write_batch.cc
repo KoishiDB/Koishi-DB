@@ -2,7 +2,7 @@
 
 
 namespace koishidb {
-    // WriteBatch has a header of  Sequence(4 bytes),count (4 bytes)
+    // WriteBatch has a header of  Sequence(8 bytes),count (4 bytes)
     WriteBatch::WriteBatch() {
         Clear();
     }
@@ -35,12 +35,13 @@ namespace koishidb {
         int count = WriteBatchInternal::Count(this);
         SequenceNumber number = WriteBatchInternal::Sequence(this);
         Slice entries(rep_);
-        entries.Advance(8);
+        // skip the header (12 bytes)
+        entries.Advance(kWriteBatchHeader);
         auto ProcessMemtableKey = [&](char key_type) -> Slice {
             std::string buffer;
             SequenceNumber tag = (number << 8) | key_type;
-            number++;
-            PutLengthPrefixedSlice(&buffer, entries);
+            number++; // the next record ?
+            PutLengthPrefixedSlice(&buffer, entries); // ????
             const char *tag_ptr = reinterpret_cast<const char *>(&tag);
             buffer.append(tag_ptr, 8);
             if (key_type == static_cast<char>(KeyType::kTypeValue)) {
@@ -50,11 +51,13 @@ namespace koishidb {
         };
         for (int i = 0; i < count; i++) {
             std::string buffer;
-            char key_type = entries.data()[0];
+            char key_type = entries.data()[0]; // see Put and Delete , it's a char now
             entries.Advance(1); //
             Slice memtable_key = ProcessMemtableKey(key_type);
             memtable->Insert(memtable_key);
         }
+
+        // a bug here , entries doesn't advance the user_key 👆
     }
 
 
@@ -62,19 +65,19 @@ namespace koishidb {
     // ------------ WriteBatchInternal --------------------
     //
     int WriteBatchInternal::Count(const WriteBatch *w) {
-        return DecodeFixed32(w->rep_.data() + 4);
+        return static_cast<int>(DecodeFixed32(w->rep_.data() + 8));
     }
 
     void WriteBatchInternal::SetCount(WriteBatch *w, int count) {
-        EncodeFixed32(&w->rep_[4], count);
+        EncodeFixed32(&w->rep_[8], count);
     }
 
     SequenceNumber WriteBatchInternal::Sequence(WriteBatch *w) {
-        return SequenceNumber(DecodeFixed32(w->rep_.data()));
+        return SequenceNumber(DecodeFixed64(w->rep_.data()));
     }
 
     void WriteBatchInternal::SetSequence(WriteBatch *w, SequenceNumber seq) {
-        EncodeFixed32(w->rep_.data(), seq);
+        EncodeFixed64(w->rep_.data(), seq);
     }
 
     void WriteBatchInternal::Append(const WriteBatch *src, WriteBatch *dst) {

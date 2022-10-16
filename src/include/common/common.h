@@ -9,18 +9,17 @@ namespace koishidb {
     constexpr int kSkipListNodeMaxLevel = 20;
     constexpr int kMemtableMaxSize = 4096; // max mutable memtable size
     constexpr int kWriteBatchReserveCapacity = 20;
-    constexpr int kWriteBatchHeader = 8;
+    constexpr int kWriteBatchHeader = 12;
     constexpr int kL0MaxFiles = 10;// should be modified later
     constexpr int kMaxMemtableSize = 4096;
 
-    using SequenceNumber = uint32_t;
+    using SequenceNumber = uint64_t;
 
     // enum class
     enum class KeyType {
         kTypeValue = 0x01,
         kTypeDeletion = 0x02,
     };
-
 
 
 };
