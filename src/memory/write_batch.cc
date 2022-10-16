@@ -38,25 +38,42 @@ namespace koishidb {
         // skip the header (12 bytes)
         entries.Advance(kWriteBatchHeader);
         auto ProcessMemtableKey = [&](char key_type) -> Slice {
-            std::string buffer;
+            std::string memtable_key;
             SequenceNumber tag = (number << 8) | key_type;
             number++; // the next record ?
-            PutLengthPrefixedSlice(&buffer, entries); // ????
-            const char *tag_ptr = reinterpret_cast<const char *>(&tag);
-            buffer.append(tag_ptr, 8);
-            if (key_type == static_cast<char>(KeyType::kTypeValue)) {
-                PutLengthPrefixedSlice(&buffer, entries);
+            switch (static_cast<KeyType>(key_type)) {
+                case KeyType::kTypeValue: {
+                    // internal_key =  | tag(8) | real_key |
+                    std::string internal_key;
+                    PutFixed64(tag, &internal_key);
+                    GetPrefixedLengthData(&entries, &internal_key);
+                    std::string value;
+                    GetPrefixedLengthData(&entries, &value);
+
+                    // | len(varint)| internal_key | len(varint) | value |
+                    PutLengthPrefixedSlice(&memtable_key, Slice(internal_key));
+                    PutLengthPrefixedSlice(&memtable_key, Slice(value));
+                    return {memtable_key}; //use a braced initializer list instead
+                }
+                case KeyType::kTypeDeletion: {
+                    std::string internal_key;
+                    PutFixed64(tag, &internal_key);
+                    GetPrefixedLengthData(&entries, &internal_key);
+                    PutLengthPrefixedSlice(&memtable_key, Slice(internal_key));
+                    return {memtable_key}; //use a braced initializer list instead
+                }
+                default: {
+                    return {};
+                }
             }
-            return Slice(buffer);
         };
         for (int i = 0; i < count; i++) {
             std::string buffer;
             char key_type = entries.data()[0]; // see Put and Delete , it's a char now
-            entries.Advance(1); //
+            entries.Advance(1);
             Slice memtable_key = ProcessMemtableKey(key_type);
             memtable->Insert(memtable_key);
         }
-
         // a bug here , entries doesn't advance the user_key 👆
     }
 

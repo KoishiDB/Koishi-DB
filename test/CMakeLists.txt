@@ -6,7 +6,7 @@ include(GoogleTest)
 # set the files to generate test
 file(GLOB_RECURSE KOISHIDB_TEST_SOURCES "${PROJECT_SOURCE_DIR}/test/*/*test.cc")
 
-foreach(koishidb_test_source ${KOISHIDB_TEST_SOURCES})
+foreach (koishidb_test_source ${KOISHIDB_TEST_SOURCES})
     get_filename_component(koishidb_test_filename ${koishidb_test_source} NAME)
 
     string(REPLACE ".cc" "" koishidb_test_outputname ${koishidb_test_filename})
@@ -17,9 +17,9 @@ foreach(koishidb_test_source ${KOISHIDB_TEST_SOURCES})
 
     target_link_libraries(${koishidb_test_outputname} koishidb gtest gmock_main)
 
-#    set_target_properties(${koishidb_test_ouputname}
-#            PROPERTIES
-#            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/test"
-#            COMMAND ${bustub_test_name}
-#            )
-endforeach()
+    #    set_target_properties(${koishidb_test_ouputname}
+    #            PROPERTIES
+    #            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/test"
+    #            COMMAND ${bustub_test_name}
+    #            )
+endforeach ()

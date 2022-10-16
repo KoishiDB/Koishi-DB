@@ -97,6 +97,13 @@ namespace koishidb {
         src->Advance(len);
     }
 
+    void GetPrefixedLengthData(Slice *src, std::string *data) {
+        uint32_t len;
+        GetVarint32(src, &len);
+        data->append(src->data(), len);
+        src->Advance(len);
+    }
+
 
     void EncodeFixed32(char *dst, uint32_t value) {
         uint8_t *const buffer = reinterpret_cast<uint8_t *>(dst);
