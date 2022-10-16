@@ -15,15 +15,11 @@ namespace koishidb {
         // TODO,
     public:
         InternalKey() = default;
-        InternalKey(const Slice& user_key, SequenceNumber sequence, KeyType type) {
-
-        }
+        InternalKey(const Slice& user_key, SequenceNumber sequence, KeyType type);
     private:
         std::string rep_;
     };
-
     InternalKey TransToInternalKey(const Slice& key);
-
 };
 
 

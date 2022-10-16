@@ -3,14 +3,18 @@
 
 #include "type/slice.h"
 #include "util/util.h"
+#include "common/common.h"
+
 namespace koishidb {
   class Comparator {
   public:
+
      virtual ~Comparator() = default;
 
      virtual int Compare(const Slice& a, const Slice& b) const = 0;
 
      virtual std::string Name() const = 0; // return the Comparator Name
+
   };
 };
 
