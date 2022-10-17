@@ -47,8 +47,11 @@ namespace koishidb {
     bool Memtable::Get(const Slice& memtable_key, std::string* result) {
         Slice ret;
         bool flag =  table_->FindFirstGreaterOrEqual(memtable_key, &ret);
-        if (flag == false) return false;
+        if (flag == false) {
+            return false;
+        }
         result->append(ret.data(), ret.size());
+        return true;
     }
 
     void Memtable::Insert(const Slice& memtable_key) {

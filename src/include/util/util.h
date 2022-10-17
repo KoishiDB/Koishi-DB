@@ -35,6 +35,21 @@ namespace koishidb {
         Slice Value() {
             return Slice(data_ + vstart_, size_ - vstart_);
         }
+
+        SequenceNumber GetSequence() {
+            return (*reinterpret_cast<const SequenceNumber*> (data_ + kend_ - 8) >> 8);
+        }
+
+        KeyType GetKeyType() {
+            uint64_t tag = *reinterpret_cast<const SequenceNumber*>(data_ + kend_ - 8);
+            tag = tag & (0xff);
+            if (tag == 0x01) {
+                return KeyType::kTypeValue;
+            } else {
+                return KeyType::kTypeDeletion;
+            }
+        }
+
     private:
         const char* data_;
         const size_t size_;

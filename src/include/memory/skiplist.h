@@ -22,7 +22,7 @@ namespace koishidb {
     public:
         SkipList(const SkipList& that) = delete;
         SkipList& operator=(const SkipList& that) = delete;
-        explicit SkipList(Comparator cmp);
+        explicit SkipList(Comparator* cmp);
         ~SkipList();
         void Insert(const K& memtable_key);
         bool FindFirstGreaterOrEqual(const K& memtable_key, K* result) const ;
@@ -90,14 +90,14 @@ namespace koishidb {
 
 
     private:
-        Comparator cmp_;
+        Comparator* cmp_;
         std::shared_mutex rwlock_;
         SkipList<K, Comparator>::Node* head_;
         size_t size_;
     };
 
     template<typename K, typename Comparator>
-    SkipList<K, Comparator>::SkipList(Comparator cmp) : cmp_(cmp) {
+    SkipList<K, Comparator>::SkipList(Comparator* cmp) : cmp_(cmp) {
         head_ = new SkipList<K, Comparator>::Node(kSkipListNodeMaxLevel);
     }
 
@@ -120,7 +120,7 @@ namespace koishidb {
         // we don't need the following code;
         // K result;
         // bool ok = FindFirstGreaterOrEqual(memtable_key, &result);
-        // if (ok == true && cmp_(result, memtable_key) == 0) {
+        // if (ok == true && cmp_->Compare(result, memtable_key) == 0) {
         //     return;
         // }
 
@@ -129,7 +129,7 @@ namespace koishidb {
         int cur_level = new_node->get_level() - 1;
         while (cur_level >= 0) {
             auto next_ptr = ptr->get_n_node(cur_level);
-            if (next_ptr != nullptr && cmp_(next_ptr->Key(), memtable_key) < 0) {
+            if (next_ptr != nullptr && cmp_->Compare(next_ptr->Key(), memtable_key) < 0) {
                 ptr = next_ptr;
                 continue;
             }
@@ -147,11 +147,11 @@ namespace koishidb {
         int cur_level = kSkipListNodeMaxLevel - 1;
         while (ptr != nullptr) {
             auto next_ptr = ptr->get_n_node(cur_level);
-            if (next_ptr != nullptr && cmp_(next_ptr->Key(), memtable_key) < 0) {
+            if (next_ptr != nullptr && cmp_->Compare(next_ptr->Key(), memtable_key) < 0) {
                 ptr = next_ptr;
                 continue;
             }
-            if (next_ptr != nullptr && cmp_(next_ptr->Key(), memtable_key) == 0) {
+            if (next_ptr != nullptr && cmp_->Compare(next_ptr->Key(), memtable_key) == 0) {
                 *result = next_ptr->Key();
                 return true;
             }
