@@ -4,12 +4,17 @@
 #include "memory/table.h"
 #include "memory/skiplist.h"
 #include "util/comparator.h"
+#include "util/iterator.h"
 #include <string>
 #include <shared_mutex>
 #include <queue>
 #include <atomic>
 
 namespace koishidb {
+
+  class MemtableIterator;
+
+
   class Memtable {
   public:
       Memtable() : table_(new SkipList<Slice, Comparator>(Comparator())) {}
@@ -28,9 +33,15 @@ namespace koishidb {
 
       void Insert(const Slice& memtable_key);
 
-  private:
+      Iterator* NewIterator();
+      // 创建一个Memtable Iterator
 
-      SkipList<Slice, Comparator>* table_; // table might be skiplist, balanced tree or other data structs that
+  private:
+      friend class MemtableIterator;
+
+      using Table = SkipList<Slice, Comparator>; // table might be skiplist, balanced tree or other data structs that
+
+      Table* table_;
                                                // implement the interface of table
       int ref_; // reference
 

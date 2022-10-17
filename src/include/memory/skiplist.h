@@ -54,19 +54,19 @@ namespace koishidb {
             std::vector<SkipList<K, Comparator>::Node*> next; // contains the next node
         };
 
-        struct Iterator {
+        class Iterator {
         public:
-            Iterator();
+            // Inner can remove the typename qualifier
             Iterator(const Iterator& that) = default;
             Iterator& operator=(const Iterator& that) = default;
-            Iterator(const SkipList<K, Comparator>& list) { node = list.head_->get_n_node(0); }
+            Iterator(const SkipList<K, Comparator>* list): list_(list) { node_ = list->head_->get_n_node(0); }
             ~Iterator() = default;
 
-            K Key() { return node->Key(); };
-            bool Valid() { return node != nullptr; }
+            K Key() const { return node_->Key(); };
+            bool Valid() const { return node_ != nullptr; }
 
             Iterator& operator++() {
-                node = node->get_n_node(0);
+                node_ = node_->get_n_node(0);
                 return *this;
             }
             Iterator operator++(int) {
@@ -74,8 +74,8 @@ namespace koishidb {
                 ++*this;
                 return tmp;
             }
-            const K& operator*() {
-                return node->Key();
+            const K& operator*() const {
+                return node_->Key();
             }
             Iterator Next() {
                 Iterator tmp = *this;
@@ -84,7 +84,8 @@ namespace koishidb {
             }
 
         private:
-            SkipList<K, Comparator>::Node* node;
+          Node* node_;
+          const SkipList* list_;
         };
 
 
