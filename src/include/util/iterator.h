@@ -15,7 +15,7 @@ namespace koishidb {
 
       virtual ~Iterator() = default;
 
-      virtual bool Valid() = 0;
+      virtual bool Valid() const = 0;
 
       virtual void Prev() = 0;
 
@@ -25,9 +25,9 @@ namespace koishidb {
 
       virtual void SeekToLast() = 0;
 
-      virtual Slice Key() = 0;
+      virtual Slice Key() const = 0;
 
-      virtual Slice Value() = 0;
+      virtual Slice Value() const = 0;
 
   };
 };
