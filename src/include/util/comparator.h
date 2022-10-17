@@ -6,11 +6,30 @@
 namespace koishidb {
   class Comparator {
   public:
-     virtual ~Comparator() = default;
 
-     virtual int Compare(const Slice& a, const Slice& b) const = 0;
+      // 0 means equal, 1 means internal_key1 > internal_key2, -1 means internal_key1 < internal_key2
+      // 按照user_key 升序, seq降序排列
+      int operator()(const Slice& internal_key1, const Slice& internal_key2) const {
+          Slice *user_key1, *user_key2;
+          SequenceNumber  *seq1, *seq2;
+          ExtractUserKey(internal_key1, user_key1, seq1);
+          ExtractUserKey(internal_key2, user_key2, seq2);
 
-     virtual std::string Name() const = 0; // return the Comparator Name
+          if (user_key1 == user_key2) {
+             if (seq1 < seq2) {
+                 return 1;
+             } else if (seq1 == seq2) {
+                 return 0;
+             } else {
+                 return -1;
+             }
+          }
+          if (user_key1 < user_key2) {
+              return -1;
+          } else {
+              return 1;
+          }
+      }
   };
 };
 

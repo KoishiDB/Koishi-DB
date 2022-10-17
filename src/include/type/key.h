@@ -7,10 +7,6 @@
 #include "util/util.h"
 
 namespace koishidb {
-
-    // We don't need to Look up key, we can use the CreateMemtableKey->
-
-
     class InternalKey {
         // TODO,
     public:

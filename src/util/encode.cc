@@ -62,7 +62,6 @@ namespace koishidb {
       dst->append(buf, advance);
   }
 
-  // GetVarint will auto advance the ptr of dst;
   void GetVarint32(Slice* dst, uint32_t* value) {
       const char* data = dst->data();
       const char* limit = data + dst->size();
