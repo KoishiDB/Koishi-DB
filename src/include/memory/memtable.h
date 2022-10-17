@@ -39,13 +39,13 @@ namespace koishidb {
   private:
       friend class MemtableIterator;
 
-      using Table = SkipList<Slice, Comparator>; // table might be skiplist, balanced tree or other data structs that
+      using Table = SkipList<Slice, Comparator>;
 
       Table* table_;
-                                               // implement the interface of table
+
       int ref_; // reference
 
-      std::atomic<bool> imm_;  //
+      std::atomic<bool> imm_;  // whether an immutable memtable exists
 
       std::shared_mutex rwlock_; // reader and writer lock, when is_mutable_ == true, should be used
   };
