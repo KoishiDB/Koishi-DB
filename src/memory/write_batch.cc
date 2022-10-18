@@ -43,10 +43,10 @@ namespace koishidb {
             number++; // the next record ?
             switch (static_cast<KeyType>(key_type)) {
                 case KeyType::kTypeValue: {
-                    // internal_key =  | tag(8) | real_key |
+                    // internal_key =  | real_key | tag(8) |
                     std::string internal_key;
-                    PutFixed64(tag, &internal_key);
                     GetPrefixedLengthData(&entries, &internal_key);
+                    PutFixed64(tag, &internal_key);
                     std::string value;
                     GetPrefixedLengthData(&entries, &value);
 
@@ -63,6 +63,7 @@ namespace koishidb {
                     return {memtable_key}; //use a braced initializer list instead
                 }
                 default: {
+                    // Panic！
                     return {};
                 }
             }
@@ -72,9 +73,10 @@ namespace koishidb {
             char key_type = entries.data()[0]; // see Put and Delete , it's a char now
             entries.Advance(1);
             Slice memtable_key = ProcessMemtableKey(key_type);
-            memtable->Insert(memtable_key);
+            if (memtable_key.size() != 0) {
+                memtable->Insert(memtable_key);
+            }
         }
-        // a bug here , entries doesn't advance the user_key 👆
     }
 
 
