@@ -7,7 +7,7 @@ namespace koishidb {
         TableBuilder() = default;
         TableBuilder& operator=(const TableBuilder& that) = default;
 
-        // Whta ?
+
     };
 };
 #endif

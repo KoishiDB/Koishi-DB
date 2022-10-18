@@ -19,6 +19,20 @@ namespace koishidb {
       return size;
   }
 
+  size_t EncodeVarint32Length(uint32_t value) {
+      static const uint8_t B = 128;
+      size_t size = 0;
+      while (true) {
+          size++;
+          if (value < B) {
+              break;
+          } else {
+              value >>= 7;
+          }
+      }
+      return size;
+  }
+
   // TODO: need to handle the invalid data
   const char* DecodeVarint32(const char* dst, uint32_t* value) {
       // uint32_t at most 5 bytes
