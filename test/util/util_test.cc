@@ -14,8 +14,9 @@ namespace koishidb {
       EXPECT_EQ(value, look_up_key.Value());
       EXPECT_EQ(number, look_up_key.GetSequence());
       EXPECT_EQ(type, look_up_key.GetKeyType());
+
+      // Random test2
       Slice user_key2("23333xincheng");
-      //Slice value2("xxxxxiiiiii");
       SequenceNumber number2 = 23333;
       KeyType type2 = KeyType::kTypeDeletion;
       Slice memtable_key2 = CreateMemtableKey(user_key2, number2, Slice(), type2);

@@ -4,6 +4,8 @@
 #include "util/comparator.h"
 #include "gtest/gtest.h"
 
+#include "logger.h"
+
 #include <set>
 
 class DoubleComparator {
@@ -73,14 +75,29 @@ namespace koishidb {
             EXPECT_EQ(0, 1);
         }
     }
-
-
+    TEST(SkipList_test, SkipListSliceInteratorTest) {
+        SkipList<Slice, MemtableKeyComparator> skipList(new MemtableKeyComparator());
+        for (int i = 0; i < 100; i++) {
+            std::string key = "user_key" + std::to_string(i);
+            skipList.Insert(CreateMemtableKey(key, 1, "", KeyType::kTypeValue));
+        }
+        SkipList<Slice, MemtableKeyComparator>::Iterator iter(&skipList);
+        for (int i = 0; i < 100; i++) {
+            std::string key = "user_key" + std::to_string(i);
+            std::cout << key << std::endl;
+            Slice memtable_key = CreateMemtableKey(key, 1, "", KeyType::kTypeValue);
+            EXPECT_EQ(memtable_key.ToString(), iter.Key().ToString());
+            iter.Next();
+        }
+    }
     // this test still has some question, need to help
     TEST(SkipList_test, SkipListSliceTest) {
         SkipList<Slice, MemtableKeyComparator> skipList(new MemtableKeyComparator());
         Slice memtable_key1 = CreateMemtableKey("user_key1", 1, "value1", KeyType::kTypeValue);
         skipList.Insert(memtable_key1);
-        Slice memtable_key2 = CreateMemtableKey("user_key2", 2, "valu2", KeyType::kTypeValue);
+        Slice memtable_key2 = CreateMemtableKey("user_key2", 2, "value2", KeyType::kTypeValue);
+        skipList.Insert(memtable_key2);
+
         Slice result;
         // Test1, find the memtable_key1
         bool flag = skipList.FindFirstGreaterOrEqual(CreateMemtableKey("user_key1", 1, "", KeyType::kTypeValue), &result);
@@ -92,9 +109,11 @@ namespace koishidb {
         EXPECT_EQ(flag, false);
 
         // Test3, find the first larger
+        result.Clear();
         flag = skipList.FindFirstGreaterOrEqual(CreateMemtableKey("user_key1", 0, "", KeyType::kTypeValue), &result);
         EXPECT_EQ(flag, true);
-        EXPECT_EQ(result, memtable_key2);
+
+        EXPECT_EQ(result.ToString(), memtable_key2.ToString());
 
         // Test4, insert the delete key and find the newest one;
         Slice memtable_key3 = CreateMemtableKey("user_key1", 3, "", KeyType::kTypeDeletion);
