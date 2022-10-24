@@ -7,7 +7,8 @@ namespace koishidb {
         TableBuilder() = default;
         TableBuilder& operator=(const TableBuilder& that) = default;
 
-
+        // Data Block, index block->
+        // index block-> key block->smallest, value-> block offset
     };
 };
 #endif

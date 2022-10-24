@@ -10,31 +10,33 @@
 #include <queue>
 #include <atomic>
 
+#include "logger.h"
+#include <iostream>
+
 namespace koishidb {
 
   class MemtableIterator;
   // For memtable key, iff the user_key is the same, then the larger the sequence is, that smaller the memtablekey is.
-  class MemtableKeyComparator: Comparator {
+  class MemtableKeyComparator: public Comparator {
   public:
       MemtableKeyComparator() = default;
       int Compare(const Slice& memtable_key1, const Slice& memtable_key2) const {
           LookupKey key1(memtable_key1), key2(memtable_key2);
           Slice user_key1 = key1.UserKey(), user_key2 = key2.UserKey();
           SequenceNumber s1 = key1.GetSequence(), s2 = key2.GetSequence();
-          if (user_key1 == user_key2) {
+          int r = user_key1.Compare(user_key2);
+          if (r == 0) {
               if (s1 == s2) {
-                  return 0; // can't be reached.
-              } else if (s1 > s2) {
+                  return 0;
+              }
+              if (s1 > s2) {
                   return -1;
-              } else {
+              }
+              if (s1 < s2) {
                   return 1;
               }
           }
-          if (user_key1 < user_key2) {
-              return -1;
-          } else {
-              return 1;
-          }
+          return r;
       }
       std::string Name() const {
           return "MemtableKeyComparator";
@@ -60,7 +62,6 @@ namespace koishidb {
       void Insert(const Slice& memtable_key);
 
       Iterator* NewIterator();
-      // 创建一个Memtable Iterator
 
   private:
       friend class MemtableIterator;

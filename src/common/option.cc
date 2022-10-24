@@ -1,7 +1,6 @@
 #include "common/option.h"
-#include "util/comparator.h"
-
+#include "memory/memtable.h"
 
 namespace koishidb {
-    Option::Option(): cmp(new Comparator()) {}
+    Option::Option(): cmp(new MemtableKeyComparator()) {}
 };

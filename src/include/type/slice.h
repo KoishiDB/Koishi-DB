@@ -24,10 +24,11 @@ namespace koishidb {
         char operator[](size_t n) const;
         bool operator== (const Slice& that) const;
         bool operator!= (const Slice& that) const; // const
-        bool operator< (const Slice& that) const;
-        friend int Compare(const Slice& a, const Slice &b);
+        int Compare(const Slice& that) const;
         void Advance(size_t n);
         void Append(const char* d, size_t n);
+        void Clear();
+
 
         std::string ToString();
     private:

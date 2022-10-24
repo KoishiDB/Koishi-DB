@@ -9,6 +9,10 @@ namespace koishidb {
 
     class BlockBuilder {
     public:
+        // varint -> key_length
+        // internal_key
+        // varint -> value_
+        // value
         // const can only be copied to const
         BlockBuilder(const Option* opt) : opt_(opt) {}
 

@@ -4,15 +4,18 @@
 #include "common/common.h"
 #include "common/option.h"
 
+ // sstable-> block
+ // internal_key ->
 
 namespace koishidb {
+
   // Key -> Internal_key ->
   // Value -> might be empty
   void BlockBuilder::Add(const Slice &key, const Slice &value) {
       // Data format -> varint: Internal_key.size(), value.size()
       // key, value;
       Slice last_key = Slice(last_key_);
-      assert(last_key.empty() || opt_->cmp->operator()(key, last_key) == 1);
+      assert(last_key.empty() || opt_->cmp->Compare(key, last_key) == 1);
       PutVarint32(key.size(), &rep_);
       PutVarint32(value.size(), &rep_);
       rep_.append(key.data(), key.size());

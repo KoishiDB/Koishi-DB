@@ -6,9 +6,15 @@
 
 // this file defines the constant that may be used in other files
 namespace koishidb {
-    // declaration here
+    // enum class
+    enum class KeyType {
+        kTypeValue = 0x01,
+        kTypeDeletion = 0x02,
+    };
+
     using SequenceNumber = uint64_t;
 
+    constexpr KeyType kTypeSeek = KeyType::kTypeValue;
     // constant here
     constexpr int kSkipListNodeMaxLevel = 20;
     constexpr int kMemtableMaxSize = 4096; // max mutable memtable size
@@ -17,11 +23,7 @@ namespace koishidb {
     constexpr int kL0MaxFiles = 10;// should be modified later
     constexpr int kMaxMemtableSize = 4096;
     constexpr int kBlockSize = 4096; // one block size;
-    // enum class
-    enum class KeyType {
-        kTypeValue = 0x01,
-        kTypeDeletion = 0x02,
-    };
+
 
 
 };

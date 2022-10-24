@@ -34,6 +34,7 @@ namespace koishidb {
         SequenceNumber number = WriteBatchInternal::GetSequenceNumber(this);
         Slice entries(rep_);
         entries.Advance(8);
+        // TODO, we should use the util function here
         auto ProcessMemtableKey = [&](char key_type) -> Slice {
             std::string buffer;
             SequenceNumber tag = (number << 8) | key_type;
@@ -44,7 +45,7 @@ namespace koishidb {
             if (key_type == static_cast<char>(KeyType::kTypeValue)) {
                 PutLengthPrefixedSlice(&buffer, entries);
             }
-            return Slice(buffer);
+            return Slice(buffer); //
         };
         for (int i = 0; i < count; i++) {
             std::string buffer;

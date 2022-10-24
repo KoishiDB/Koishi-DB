@@ -4,7 +4,6 @@
 #include "common/common.h"
 #include "util/util.h"
 #include "type/slice.h"
-//#include "logger.h"
 
 #include <vector>
 #include <memory>
@@ -77,10 +76,9 @@ namespace koishidb {
             const K& operator*() const {
                 return node_->Key();
             }
-            Iterator Next() {
-                Iterator tmp = *this;
-                ++tmp;
-                return tmp;
+            void Next() {
+                assert(this->Valid());
+                node_ = node_->get_n_node(0);
             }
 
         private:

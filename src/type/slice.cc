@@ -32,14 +32,17 @@ namespace koishidb {
         return !(*this == that);
     }
 
-    bool Slice::operator<(const Slice &that) const {
-        if (strcmp(this->data(), that.data()) == -1) {
-            return true;
+    int Slice::Compare(const Slice& that) const {
+        const size_t min_len = (size_ < that.size_) ? size_ : that.size_;
+        int r = memcmp(data_, that.data_, min_len);
+        if (r == 0) {
+            if (size_ < that.size_)
+                r = -1;
+            else if (size_ > that.size_)
+                r = +1;
         }
-        return false;
-    }
-    int Compare(const Slice& a, const Slice& b) {
-      return strcmp(a.data(), b.data());
+        return r;
+
     }
 
     std::string Slice::ToString() {
@@ -52,5 +55,9 @@ namespace koishidb {
         size_ -= n;
     }
 
+    void Slice::Clear() {
+        data_ = "";
+        size_ = 0;
+    }
 };
 

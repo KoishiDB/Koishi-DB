@@ -5,6 +5,10 @@
 
 namespace koishidb {
   // Iterator interface
+
+  // BlockIterator->
+
+  //
   class Iterator {
   public:
       Iterator();

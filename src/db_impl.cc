@@ -25,13 +25,16 @@ namespace koishidb {
       write_batch.Delete(key);
       return Write(&write_batch);
   }
-
+ // index
+  // sstable index block -> block->
+  // sstable -> index block
+  // filter block
   void DBimpl::Write(WriteBatch *update) {
     Writer w(update);
 
     // exclusive lock mode
     std::unique_lock<std::shared_mutex> lock(rwlock_);
-    writers_.push_back(&w);
+    writers_.push_back(&w); //
     if (!w.done && &w != writers_.front()) {
         // don't block the other threads that invoke Put method
         std::unique_lock<std::mutex> cv_lock(cv_lock_, std::adopt_lock);
@@ -45,7 +48,7 @@ namespace koishidb {
         return;
     }
 
-    MakeRoomForWriter(); //
+    MakeRoomForWrite(); //
     Writer *last_writer = &w;
 
     // TODO() BuildWriteBatch
@@ -70,7 +73,7 @@ namespace koishidb {
     bool DBimpl::Get(const Slice& key, std::string* value) {
        // shared lock mode;
        std::shared_lock<std::shared_mutex> lock(rwlock_);
-       CreateMemtableKey(key, UINT64_MAX); //
+       CreateMemtableKey(key, UINT64_MAX, "", kTypeSeek);
        Memtable* mem = memtable_;
        Memtable* imm = nullptr;
        if (immutable_memtable_ != nullptr) {
