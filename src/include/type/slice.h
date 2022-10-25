@@ -10,7 +10,7 @@ namespace koishidb {
     public:
         Slice();
         Slice(const char* d);
-        Slice(std::string& s);
+        Slice(const std::string& s);
         // should be copyable
         Slice(const char* d, size_t size);
         Slice(const Slice& that) = default;
