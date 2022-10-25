@@ -24,6 +24,8 @@ namespace koishidb {
 
         std::string ToString() const;
         Slice ToSlice() const;
+        void Clear();
+        bool Valid() const;
     private:
         std::string rep_;
     };

@@ -20,6 +20,14 @@ namespace koishidb {
         return rep_;
     }
 
+    void InternalKey::Clear() {
+        rep_.clear();
+    }
+
+    bool InternalKey::Valid() const {
+        return !rep_.empty();
+    }
+
     InternalKey TransToInternalKey(const Slice& key) {
         return InternalKey(key.ToString());
     }
