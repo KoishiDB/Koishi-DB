@@ -30,7 +30,7 @@ namespace koishidb {
         void Clear();
 
 
-        std::string ToString();
+        std::string ToString() const;
     private:
         const char* data_;
         size_t size_;

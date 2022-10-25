@@ -45,7 +45,7 @@ namespace koishidb {
 
     }
 
-    std::string Slice::ToString() {
+    std::string Slice::ToString() const {
         return std::string(data_, size_);
     }
 
