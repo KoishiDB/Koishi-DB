@@ -1,6 +1,5 @@
 #ifndef KOISHIDB_SRC_INCLUDE_DISK_BLOCK_BUILDER_H
 #define KOISHIDB_SRC_INCLUDE_DISK_BLOCK_BUILDER_H
-
 #include "type/slice.h"
 
 
@@ -23,6 +22,9 @@ namespace koishidb {
         Slice Finish();
 
         void Reset();
+
+        // used only for unit test.
+        std::string Data() {return rep_;}
     private:
         std::string rep_;
         std::string last_key_; // Add the new key should

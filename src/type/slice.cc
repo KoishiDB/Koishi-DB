@@ -14,7 +14,7 @@ namespace koishidb {
     Slice::Slice() : data_(""), size_(0) {}
     Slice::Slice(const char* d) : data_(d), size_(strlen(d)) {}
     Slice::Slice(const char *d, size_t size) : data_(d), size_(size) {}
-    Slice::Slice(std::string &s) : data_(s.data()), size_(s.size()) {}
+    Slice::Slice(const std::string &s) : data_(s.data()), size_(s.size()) {}
 
     char Slice::operator[](size_t n) const {
         assert(n < size_);
@@ -50,7 +50,7 @@ namespace koishidb {
     }
 
     void Slice::Advance(size_t n) {
-        assert(n < size_);
+        assert(n <= size_);
         data_ += n;
         size_ -= n;
     }

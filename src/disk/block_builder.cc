@@ -20,6 +20,7 @@ namespace koishidb {
       PutVarint32(value.size(), &rep_);
       rep_.append(key.data(), key.size());
       rep_.append(value.data(), value.size());
+      last_key_ = std::string(key.data(), key.size());
   }
 
   size_t BlockBuilder::EstimatedSize() {

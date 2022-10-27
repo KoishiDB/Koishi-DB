@@ -11,7 +11,7 @@ namespace koishidb {
   //
   class Iterator {
   public:
-      Iterator();
+      Iterator() = default;
 
       Iterator(const Iterator& that) = delete;
 
@@ -33,6 +33,8 @@ namespace koishidb {
 
       virtual Slice Value() const = 0;
 
+      // seek can move the iterator position and set the right position
+      virtual bool Seek(const Slice& target) = 0;
   };
 };
 
