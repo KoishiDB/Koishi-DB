@@ -23,14 +23,13 @@ namespace koishidb {
         //  next entry offset
 
         offset_ = value_.data() + value_.size() - data_;
-        std::cout << offset_ << std::endl;
-        assert(this->Valid());
+        if (!this->Valid()) {
+            return;
+        }
         Slice rest_entries = Slice(data_ + offset_, size_ - offset_);
         uint32_t internal_key_len;
         GetVarint32(&rest_entries, &internal_key_len);
-        std::cout << internal_key_len << std::endl;
         key_ = std::string(rest_entries.data(), internal_key_len);
-        std::cout << key_;
         rest_entries.Advance(internal_key_len);
 
         uint32_t  value_len;

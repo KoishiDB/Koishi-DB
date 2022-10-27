@@ -24,7 +24,6 @@ namespace koishidb {
         iter->SeekToFirst();
         // should invoke next first
         iter->Next();
-        std::cout << std::string(iter->Key().data(), iter->Key().size()) << std::endl;
         EXPECT_EQ(iter->Key(), "aaa");
         EXPECT_EQ(iter->Value(), "123");
         iter->Next();
