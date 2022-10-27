@@ -64,7 +64,7 @@ namespace koishidb {
           return reinterpret_cast<const char*> (ptr);
       }
       part0 -= 0x80 << 21;
-      uint32_t part4 = *ptr;
+      uint32_t part4 = *(ptr++);
       part0 += part4 << 28;
       *value = part0;
       return reinterpret_cast<const char*> (ptr);
@@ -83,7 +83,7 @@ namespace koishidb {
       const char* q = DecodeVarint32(data, value);
 
       // 这一行Slice是一个tmp 对象吗？
-      *dst = Slice(q, limit- q);
+      *dst = Slice(q, limit - q);
   }
 
   // GetFixedBytes to result

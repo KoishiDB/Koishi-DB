@@ -10,7 +10,7 @@ namespace koishidb {
         GetFixedBytes(&memtable_key, internal_key, internal_key_len);
     }
 
-    void ExtractUserKey(const Slice& internal_key, Slice* user_key, SequenceNumber* number){
+    void ExtractUserKey(const Slice& internal_key, Slice* user_key, SequenceNumber* number) {
         *user_key = Slice(internal_key.data(), internal_key.size() - 8);
         *number = (*reinterpret_cast<const SequenceNumber*>(internal_key.data() + user_key->size()) >> 8);
     }
