@@ -50,7 +50,7 @@ namespace koishidb {
     }
 
     void Slice::Advance(size_t n) {
-        assert(n < size_);
+        assert(n <= size_);
         data_ += n;
         size_ -= n;
     }

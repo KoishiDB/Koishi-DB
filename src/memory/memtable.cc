@@ -38,6 +38,11 @@ namespace koishidb {
         void SeekToLast() override {
             // we don't need this method currently, we can do it later;
         }
+
+        bool Seek(const Slice& target) override {
+            // TODO
+            return false;
+        }
     private:
         // private name
         Memtable::Table::Iterator iter_;
