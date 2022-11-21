@@ -11,6 +11,7 @@ namespace koishidb {
 
      virtual ~Comparator() = default;
 
+     // -1 means a < b, 1 means a > b, 0 means a == b
      virtual int Compare(const Slice& a, const Slice& b) const = 0;
 
      virtual std::string Name() const = 0; // return the Comparator Name

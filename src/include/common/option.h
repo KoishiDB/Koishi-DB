@@ -3,9 +3,11 @@
 
 namespace koishidb {
     // forward declarations
+    // Some Options that
     class Comparator;
     struct Option {
         Option();
+        Option(const Comparator* opt);
         const Comparator* cmp; // to compare the last key
     };
 

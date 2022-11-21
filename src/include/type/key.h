@@ -12,8 +12,6 @@
 namespace koishidb {
 
     // We don't need to Look up key, we can use the CreateMemtableKey->
-
-
     // InternalKey Comparator
     class InternalKey {
     public:

@@ -13,7 +13,16 @@ namespace koishidb {
 
     size_t EncodeVarint32Length(uint32_t value);
 
+    char* EncodeVarint64(char* dst, uint64_t v);
+
+    void PutVarint64(std::string* dst, uint64_t v);
+
     const char* DecodeVarint32(const char* dst, uint32_t* value);
+
+    const char* GetVarint64Ptr(const char* p, const char* limit, uint64_t* value);
+
+    // bool indicate whether the data is valid.
+    bool GetVarint64(Slice* input, uint64_t* value);
 
     void PutVarint32(uint32_t value, std::string* dst);
 
@@ -22,5 +31,9 @@ namespace koishidb {
     void GetFixedBytes(Slice* dst, Slice* result, size_t n);
 
     void PutLengthPrefixedSlice(std::string* dst, const Slice& value);
+
+    void GetLengthPrefixedSlice(std::string* dst, Slice* src);
+
+
 };
 #endif

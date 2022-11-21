@@ -4,6 +4,7 @@ add_library(
         builder.cc
         block_builder.cc
         block_iterator.cc
+        table_builder.cc
 )
 
 # TARGET_OBJECTS

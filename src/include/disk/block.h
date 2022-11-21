@@ -9,6 +9,7 @@ namespace koishidb {
       size_t size;
       bool owend;
   };
+
 };
 
 #endif
