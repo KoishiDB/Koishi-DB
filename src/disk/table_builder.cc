@@ -1,6 +1,7 @@
 #include "disk/table_builder.h"
 #include "disk/block_builder.h"
 #include "disk/format.h"
+#include "disk/writable_file.h"
 #include "common/option.h"
 #include "common/common.h"
 #include "util/comparator.h"
@@ -77,7 +78,7 @@ namespace koishidb {
     Rep* r = rep_;
     Slice block_content = block_builder->Finish();
     // TODO
-    r->status = r->file->Apppend(block_content); // write to buffer
+    r->status = r->file->Append(block_content); // write to buffer
     if (r->status.ok()) {
       block_handle->set_offset(r->offset);
       block_handle->set_size(block_content.size());
