@@ -7,6 +7,7 @@ add_library(
         table_builder.cc
         writable_file.cc
         filterblock_builder.cc
+        filterblock_reader.cc
 )
 
 # TARGET_OBJECTS
