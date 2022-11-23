@@ -27,6 +27,7 @@ namespace koishidb {
     constexpr int kBloomFilterPerKeySize = 10; //
     constexpr int kFilterBaseLg = 11;
     constexpr int kFilterBase = 1 << kFilterBaseLg;
+    constexpr int kFixedFooterSize = 40;
 };
 
 #endif

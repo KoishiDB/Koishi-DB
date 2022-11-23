@@ -121,6 +121,7 @@ namespace koishidb {
     return nullptr;
   }
 
+  // will automate advance the ptr of input
   bool GetVarint64(Slice* input, uint64_t* value) {
     const char* p = input->data();
     const char* limit = p + input->size();

@@ -5,22 +5,22 @@
 #include "common/option.h"
 #include "common/common.h"
 #include "util/comparator.h"
+#include "disk/filterblock_builder.h"
 
 
 namespace koishidb {
   // TODO
-  class FilterBlockBuilder;
   struct TableBuilder::Rep {
     Rep(const Option* opt, WritableFile* file): opt(opt), file(file), data_block(opt), index_block(opt), meta_block(nullptr)
     ,offset(static_cast<uint64_t>(0)), num_entries(static_cast<uint64_t>(0)), closed(false), block_handle(), pending_index_block(false)
     ,last_key("") {}
 
-    // can't change the option in current implemtation.
+    // can't change the option in current implementation
     const Option* opt; // contains the comparator
     WritableFile* file;
     BlockBuilder data_block;
     BlockBuilder index_block;
-    FilterBlockBuilder* meta_block; // TODO, currently no uesd
+    FilterBlockBuilder filter_block;
     uint64_t offset;
     uint64_t num_entries;
     bool closed; // when call the finish or abandon, closed = true
@@ -46,7 +46,8 @@ namespace koishidb {
       r->index_block.Add(Slice(r->last_key), Slice(block_handle));
       r->pending_index_block = false;
     }
-    // TODO filter block write
+
+    r->filter_block.AddKey(key);
 
     r->data_block.Add(key, value);
     r->last_key.assign(key.data(), key.size()); // use std::string.assign(), can hold string or c_str
@@ -69,9 +70,8 @@ namespace koishidb {
     if (ok()) {
       r->pending_index_block = true;
       r->status = r->file->Flush();
+      r->filter_block.StartBlock(r->offset);
     }
-
-    // TODO, write the meta block.
   }
 
   void TableBuilder::WriteBlock(BlockBuilder *block_builder, BlockHandle *block_handle) {
@@ -82,7 +82,7 @@ namespace koishidb {
     if (r->status.ok()) {
       block_handle->set_offset(r->offset);
       block_handle->set_size(block_content.size());
-      r->offset += block_content.size(); //
+      r->offset += block_content.size();
     }
   }
 
@@ -90,12 +90,58 @@ namespace koishidb {
   Status TableBuilder::Finish() {
     Rep* r = rep_;
     assert(!r->closed);
+    r->closed = true;
 
-    // TODO
-    // 1.Write Meta Blocks->
+    Flush(); // flush the left data block.
+    if (!ok()) {
+      return status();
+    }
+    // currently we have write the all the data blocks and build up a newly index block
+    // what we need to do is to write them to the table file.
+    // 1.Write Filter Blocks->
     // 2.Write MetaIndex Block
     // 3.Write IndexBlock
     // 4.Write Footer
+
+    BlockHandle index_block_handle, filter_block_handle;
+
+    Slice filter_block_contents = r->filter_block.Finish();
+    r->status = r->file->Append(filter_block_contents);
+    if (!r->status.ok()) {
+      return r->status;
+    }
+    filter_block_handle.set_offset(r->offset);
+    filter_block_handle.set_size(filter_block_contents.size());
+    r->offset += filter_block_contents.size();
+
+    // write index_block
+    if (r->pending_index_block) {
+      std::string block_handle;
+      r->block_handle.EncodeTo(&block_handle);
+      r->index_block.Add(Slice(r->last_key), Slice(block_handle));
+      r->pending_index_block = false;
+    }
+    WriteBlock(&r->index_block, &index_block_handle);
+
+    if (!ok()) {
+      return status();
+    }
+
+    // footer format (fixed size)
+    // filter_block_handle, index_block_handle, paddings(40 - sizeof(filter_block_handle) - sizeof(index_block_handler))
+    Footer footer;
+    footer.set_index(index_block_handle);
+    footer.set_filter(filter_block_handle);
+
+    std::string footer_encoded;
+    footer.EncodeTo(&footer_encoded);
+    r->status = r->file->Append(footer_encoded.data());
+    if (!ok()) {
+      return status();
+    }
+    r->offset += footer_encoded.size(); // The same as the kFixedFooterSize;
+    r->file->Flush();
+    return status();
   }
 
   void TableBuilder::Abandon() {

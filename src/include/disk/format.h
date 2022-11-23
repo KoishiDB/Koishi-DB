@@ -3,6 +3,7 @@
 
 #include "type/slice.h"
 #include "common/status.h"
+#include "common/common.h"
 #include "util/encode.h"
 namespace koishidb {
 
@@ -29,6 +30,8 @@ private:
 };
 
 inline BlockHandle::BlockHandle(): offset_(~static_cast<uint64_t>(0)), size_(~static_cast<uint64_t>(0)) {}
+
+// append to the dst, so we need to use the ptr of string
 inline void BlockHandle::EncodeTo(std::string *dst) const {
   // Sanity check that all fields have been set
 
@@ -46,7 +49,44 @@ inline Status BlockHandle::DecodeFrom(Slice* input) {
   }
 }
 
+// class Footer
+class Footer {
+public:
+  Footer() = default;
+  Footer(const Footer&) = delete;
+  Footer& operator=(const Footer&) = delete;
 
+  void set_index(BlockHandle index_block_handle) {
+    index_block_handle_ = index_block_handle;
+  }
+
+  void set_filter(BlockHandle filter_block_handle) {
+    filter_block_handle_ = filter_block_handle;
+  }
+
+  void EncodeTo(std::string* dst);
+
+  Status DecodeFrom(Slice* s);
+private:
+  BlockHandle index_block_handle_;
+  BlockHandle filter_block_handle_;
+};
+
+inline void Footer::EncodeTo(std::string *dst) {
+  int begin = dst->size();
+  index_block_handle_.EncodeTo(dst);
+  filter_block_handle_.EncodeTo(dst);
+  int paddings = kFixedFooterSize - (dst->size() - begin);
+  dst->append(paddings, static_cast<char>(0));
+}
+
+inline Status Footer::DecodeFrom(Slice *input) {
+  auto s = index_block_handle_.DecodeFrom(input);
+  if (!s.ok())
+    return s;
+  s = filter_block_handle_.DecodeFrom(input);
+  return s;
+}
 };
 
 #endif
