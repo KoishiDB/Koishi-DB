@@ -1,6 +1,6 @@
 #include <sys/errno.h>
 
-
+#include "common/status.h"
 #include "disk/writable_file.h"
 
 
@@ -20,7 +20,7 @@ namespace koishidb {
       return Status::OK();
     }
     // can't fit it the buffer, should Flush at first
-    Status status = FlushBuffer();
+    Status status = Flush();
     if (!status.ok()) {
       return status;
     }
@@ -33,7 +33,7 @@ namespace koishidb {
     return WriteUnbuffered(write_data, write_size);
   }
 
-  Status WritableFile::FlushBuffer() {
+  Status WritableFile::Flush() {
     Status status = WriteUnbuffered(buf_, pos_);
     pos_ = 0;
     return status;
@@ -61,5 +61,13 @@ namespace koishidb {
     } else {
       return Status::IOError(context, std::strerror(error_number));
     }
+  }
+
+  std::string WritableFile::Dirname(const std::string &filename) {
+    auto pos = filename.rfind('/');
+    if (pos == std::string::npos) {
+       return std::string(".");
+    }
+    return filename.substr(0, pos);
   }
 }; // namespace koishidb

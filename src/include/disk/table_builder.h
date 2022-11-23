@@ -15,9 +15,8 @@ namespace koishidb {
         TableBuilder() = delete;
         TableBuilder& operator=(const TableBuilder& that) = delete;
 
-        ~TableBuilder() {
-          delete rep_;
-        }
+        ~TableBuilder();
+
         TableBuilder(const Option* opt, WritableFile* file);
 
         // add the key and value to the Table

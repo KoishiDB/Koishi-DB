@@ -11,8 +11,8 @@
 namespace koishidb {
   // TODO
   struct TableBuilder::Rep {
-    Rep(const Option* opt, WritableFile* file): opt(opt), file(file), data_block(opt), index_block(opt), meta_block(nullptr)
-    ,offset(static_cast<uint64_t>(0)), num_entries(static_cast<uint64_t>(0)), closed(false), block_handle(), pending_index_block(false)
+    Rep(const Option* opt, WritableFile* file): opt(opt), file(file), data_block(opt), index_block(opt), filter_block(),
+    offset(static_cast<uint64_t>(0)), num_entries(static_cast<uint64_t>(0)), closed(false), block_handle(), pending_index_block(false)
     ,last_key("") {}
 
     // can't change the option in current implementation
@@ -30,6 +30,10 @@ namespace koishidb {
     Status status; // status
   };
   TableBuilder::TableBuilder(const Option* opt, WritableFile* writableFile): rep_(new Rep(opt, writableFile)) {}
+
+  TableBuilder::~TableBuilder() {
+    delete rep_;
+  }
 
   void TableBuilder::Add(const Slice &key, const Slice &value) {
     Rep* r = rep_;

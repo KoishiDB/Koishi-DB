@@ -24,8 +24,7 @@ namespace koishidb {
     Status Flush();
 
   private:
-    // don't need to be defined multiple times
-    Status FlushBuffer();
+
 
     // static function can't use the unstatic memeber
     Status WriteUnbuffered(const char* data, size_t size);

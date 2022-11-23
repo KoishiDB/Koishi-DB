@@ -2,8 +2,8 @@
 #define KOISHIDB_SRC_INCLUDE_COMMON_STATUS_H
 #include <algorithm>
 #include <string>
-
 #include "type/slice.h"
+
 namespace koishidb {
 // Borrowed from LevelDB status
 class Status {
