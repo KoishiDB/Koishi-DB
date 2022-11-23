@@ -2,7 +2,7 @@
 #include "disk/filterblock_builder.h"
 
 #include "gtest/gtest.h"
-
+#include <iostream>
 namespace koishidb {
   TEST(Filterblock_test, SingleChunkTest) {
     FilterBlockBuilder builder;
