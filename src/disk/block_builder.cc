@@ -16,7 +16,7 @@ namespace koishidb {
       // key, value;
       Slice last_key = Slice(last_key_);
       // TODO, should change the memtablekeyComparator to Slice Comparator
-      //assert(last_key.empty() || opt_->cmp->Compare(key, last_key) == 1);
+      assert(last_key.empty() || opt_->cmp->Compare(key, last_key) == 1);
       PutVarint32(key.size(), &rep_);
       rep_.append(key.data(), key.size());
       PutVarint32(value.size(), &rep_);
@@ -34,6 +34,8 @@ namespace koishidb {
       last_key_.clear();
   }
 
+
+  // finish often used to do the patch job.
   Slice BlockBuilder::Finish() {
       // how to finish a block builder ?
       is_finished_ = true;

@@ -23,8 +23,10 @@ namespace koishidb {
 
         void Reset();
 
+        bool Empty() { return this->EstimatedSize() == 0; }
+
         // used only for unit test.
-        std::string Data() {return rep_;}
+        std::string Data() { return rep_; }
     private:
         std::string rep_;
         std::string last_key_; // Add the new key should

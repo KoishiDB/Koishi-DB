@@ -2,7 +2,6 @@ add_library(
         koishidb_memory
         OBJECT
         hash.cc
-        extendible_hash.cc
         memtable.cc
 )
 

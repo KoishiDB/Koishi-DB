@@ -36,6 +36,8 @@ namespace koishidb {
         return "InternalKeyComparator";
     }
 
+
+
     int InternalKeyComparator::Compare(const Slice& a, const Slice& b) const {
         Slice user_key1, user_key2;
         SequenceNumber seq1, seq2;

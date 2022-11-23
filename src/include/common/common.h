@@ -23,9 +23,11 @@ namespace koishidb {
     constexpr int kL0MaxFiles = 10;// should be modified later
     constexpr int kMaxMemtableSize = 4096;
     constexpr int kBlockSize = 4096; // one block size;
-
-
-
+    constexpr int kWritableFileBuffer = 65536; // Buffer;
+    constexpr int kBloomFilterPerKeySize = 10; //
+    constexpr int kFilterBaseLg = 11;
+    constexpr int kFilterBase = 1 << kFilterBaseLg;
+    constexpr int kFixedFooterSize = 40;
 };
 
 #endif
