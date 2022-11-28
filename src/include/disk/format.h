@@ -96,7 +96,8 @@ inline Status Footer::DecodeFrom(Slice *input) {
 }
 
 
-std::optional<BlockContent*> ReadBlock(RandomAccessFile* file, const BlockHandle& block_handle);
+// Given the block handle and return the data of the offset.
+std::optional<BlockContent*> ReadBlock(RandomAccessFile* file, const BlockHandle& blockHandle);
 };
 
 #endif

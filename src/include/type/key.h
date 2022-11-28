@@ -30,14 +30,10 @@ namespace koishidb {
     InternalKey TransToInternalKey(const Slice& key);
 
     class InternalKeyComparator : public Comparator {
-    private:
-        const Comparator* internal_key_comparator_;
     public:
-        explicit InternalKeyComparator(const Comparator* c) : internal_key_comparator_(c) {}
+        InternalKeyComparator() = default;
         std::string Name() const override;
         int Compare(const Slice& a, const Slice& b) const override;
-
-        const Comparator* internal_key_comparator() const { return internal_key_comparator_; }
 
         int Compare(const InternalKey& a, const InternalKey& b) const;
     }; // class InternalKeyComparator

@@ -3,16 +3,18 @@
 #include "disk/format.h"
 #include "disk/filterblock_reader.h"
 #include "disk/block.h"
+#include "disk/table_iterator.h"
 #include "common/option.h"
 #include "common/common.h"
 #include "logger.h"
 namespace koishidb {
 
-struct Table::Rep {
+struct SSTable::Rep {
   ~Rep() {
     delete filter_block_reader;
     delete[] filter_data;
     delete index_block;
+
   }
   const Option* option;
   // something that should be a ptr;
@@ -20,14 +22,12 @@ struct Table::Rep {
   Status status;
   FilterBlockReader* filter_block_reader;
   const char* filter_data;
-
-  BlockHandle filter_block_handler;
   Block* index_block;
 };
 
 
 
-std::optional<Table *> Table::Open(const Option *opt, RandomAccessFile *file, size_t file_size) {
+std::optional<SSTable *> SSTable::Open(const Option *opt, RandomAccessFile *file, size_t file_size) {
     if (file_size < kFixedFooterSize) {
       LOG_ERROR("corrupted sstable file");
       return { };
@@ -54,14 +54,24 @@ std::optional<Table *> Table::Open(const Option *opt, RandomAccessFile *file, si
     Block* block = new Block(index_block_content.value());
     // optional 's behavior is like an iterator
     //set the rep_ now;
-    Rep* rep = new Table::Rep;
+
+    // read meta;
+    auto filter_block_content = ReadBlock(file, footer.filter_handle());
+    if (!filter_block_content.has_value()) {
+       delete block;
+       return {};
+    }
+
+    Rep* rep = new SSTable::Rep;
     rep->index_block = block;
-    rep->option = opt;
+    rep->filter_data = filter_block_content.value()->data();
     rep->status = Status();
+    rep->filter_block_reader = new FilterBlockReader(Slice(rep->filter_data));
+    rep->file = file;
 
-    // next read meta
-
-    return {};
+    SSTable* table = new SSTable(rep);
+    table->file_ = file;
+    return { table };
 }
 
 std::optional<BlockContent*> ReadBlock(RandomAccessFile *file, const BlockHandle &block_handle) {
@@ -78,9 +88,11 @@ std::optional<BlockContent*> ReadBlock(RandomAccessFile *file, const BlockHandle
       LOG_ERROR("read block error");
       return {};
     }
-
     return { result };
-
 }
 
+
+Iterator* SSTable::NewIterator() const {
+    return new TableIterator(rep_->index_block);
+}
 }; // namespace koishidb

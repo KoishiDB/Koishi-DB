@@ -18,7 +18,6 @@ namespace koishidb {
         std::string rep = block_builder->Data();
         b.data = rep.data();
         b.size = rep.size();
-        b.owend = false;
 
         BlockIterator* iter = new BlockIterator(&b);
         iter->SeekToFirst();

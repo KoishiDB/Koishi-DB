@@ -3,6 +3,7 @@
 
 #include <stddef.h>
 #include <optional>
+#include <memory>
 #include "util/iterator.h"
 
 
@@ -17,30 +18,30 @@ class BlockHandle;
   // It can be safely accessed by multiple threads.
 
   // Read the Table is the opposite operation of the table builder
-  class Table {
+  class SSTable {
   public:
 
-    static std::optional<Table*> Open(const Option* opt, RandomAccessFile* file, size_t file_size);
+    static std::optional<SSTable*> Open(const Option* opt, RandomAccessFile* file, size_t file_size);
 
-    Table(const Table& that) = delete;
-    Table& operator=(const Table& that) = delete;
+    SSTable(const SSTable& that) = delete;
+    SSTable& operator=(const SSTable& that) = delete;
 
-    ~Table() {
+    ~SSTable() {
       delete rep_;
     }
 
     // we don't need the read option now, and maybe it can be implemented later
+    // This iterator needs to manually delete, maybe it can be replaced by unique_ptr?
     Iterator* NewIterator() const;
 
-
+    RandomAccessFile* random_access_file() const { return file_; }
   private:
     // TODO add the table cache
 
-
     struct Rep;
-    explicit Table(Rep* rep): rep_(rep) {}
+    explicit SSTable(Rep* rep): rep_(rep) {}
     Rep* rep_;
-
+    RandomAccessFile* file_; //used to create the table iterator only
   };
 };
 

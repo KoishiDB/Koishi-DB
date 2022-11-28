@@ -10,6 +10,7 @@ add_library(
         filterblock_reader.cc
         random_access_file.cc
         table.cc
+        table_iterator.cc
 )
 
 # TARGET_OBJECTS
