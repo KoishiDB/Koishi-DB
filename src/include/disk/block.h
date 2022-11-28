@@ -5,9 +5,9 @@
 namespace koishidb {
   // Block
   struct Block {
+      Block(const Slice* block_data): data(block_data->data()), size(block_data->size()) {}
       const char* data; // underlying data
       size_t size;
-      bool owend;
   };
 
 };

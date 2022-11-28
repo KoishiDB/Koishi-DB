@@ -1,6 +1,5 @@
 #include "disk/block_iterator.h"
 #include "disk/block.h"
-#include "type/key.h"
 #include "util/util.h"
 
 #include <iostream>

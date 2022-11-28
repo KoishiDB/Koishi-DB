@@ -8,6 +8,8 @@ add_library(
         writable_file.cc
         filterblock_builder.cc
         filterblock_reader.cc
+        random_access_file.cc
+        table.cc
 )
 
 # TARGET_OBJECTS

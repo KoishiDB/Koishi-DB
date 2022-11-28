@@ -49,9 +49,12 @@ inline Status BlockHandle::DecodeFrom(Slice* input) {
   }
 }
 
+
 // class Footer
 class Footer {
 public:
+
+
   Footer() = default;
   Footer(const Footer&) = delete;
   Footer& operator=(const Footer&) = delete;
@@ -63,6 +66,10 @@ public:
   void set_filter(BlockHandle filter_block_handle) {
     filter_block_handle_ = filter_block_handle;
   }
+
+  BlockHandle index_handle() { return index_block_handle_; }
+
+  BlockHandle filter_handle() { return filter_block_handle_; }
 
   void EncodeTo(std::string* dst);
 
@@ -87,6 +94,9 @@ inline Status Footer::DecodeFrom(Slice *input) {
   s = filter_block_handle_.DecodeFrom(input);
   return s;
 }
+
+
+std::optional<BlockContent*> ReadBlock(RandomAccessFile* file, const BlockHandle& block_handle);
 };
 
 #endif
