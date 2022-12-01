@@ -1,18 +1,18 @@
-#ifndef KOISHIDB_SRC_INCLUDE_TABLE_ITERATOR_H
-#define KOISHIDB_SRC_INCLUDE_TABLE_ITERATOR_H
+#ifndef KOISHIDB_SRC_INCLUDE_SSTABLE_ITERATOR_H
+#define KOISHIDB_SRC_INCLUDE_SSTABLE_ITERATOR_H
 
 #include "util/iterator.h"
 
 namespace koishidb {
 class SSTable;
 class Block;
-class TableIterator: public Iterator {
+class SSTableIterator: public Iterator {
 public:
-  TableIterator(Block* indexBlock);
-  TableIterator(const TableIterator& that) = delete;
-  TableIterator& operator=(const TableIterator& that) = delete;
+  SSTableIterator(Block* indexBlock);
+  SSTableIterator(const SSTableIterator& that) = delete;
+  SSTableIterator& operator=(const SSTableIterator& that) = delete;
 
-  ~TableIterator();
+  ~SSTableIterator();
   bool Valid() const ;
 
   void Prev();

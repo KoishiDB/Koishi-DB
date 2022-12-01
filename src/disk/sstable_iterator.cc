@@ -1,5 +1,5 @@
-#include "disk/table_iterator.h"
-#include "disk/table.h"
+#include "disk/sstable_iterator.h"
+#include "disk/sstable.h"
 #include "disk/format.h"
 #include "disk/block.h"
 #include "disk/block_iterator.h"
@@ -7,12 +7,12 @@
 namespace koishidb {
 
 // easy version of the table level iterator
-void TableIterator::SeekToFirst() {
+void SSTableIterator::SeekToFirst() {
   index_iter_->SeekToFirst();
   UpdateDataIterator();
 }
 
-void TableIterator::Next() {
+void SSTableIterator::Next() {
     // MayBe there is a empty block;
     assert(data_iter_ != nullptr);
     while (true) {
@@ -29,27 +29,27 @@ void TableIterator::Next() {
     }
 }
 
-void TableIterator::Prev() {
+void SSTableIterator::Prev() {
   // empty op now;
 }
 
-void TableIterator::SeekToLast() {
+void SSTableIterator::SeekToLast() {
   // every time index_iter ->
   index_iter_->SeekToLast();
 }
 
-Slice TableIterator::Value() const {
+Slice SSTableIterator::Value() const {
   return data_iter_->Value();
 }
 
-Slice TableIterator::Key() const {
+Slice SSTableIterator::Key() const {
   return data_iter_->Key();
 }
 
-bool TableIterator::Valid() const {
+bool SSTableIterator::Valid() const {
   return data_iter_->Valid();
 }
-bool TableIterator::Seek(const Slice &target) {
+bool SSTableIterator::Seek(const Slice &target) {
   index_iter_->Seek(target);
   Slice block_handle = index_iter_->Value();
   if (std::string(block_handle.data(), block_handle.size()) != data_block_handle_) {
@@ -60,7 +60,7 @@ bool TableIterator::Seek(const Slice &target) {
   return data_iter_->Seek(target);
 }
 
-Iterator* TableIterator::BlockReader(SSTable *table, const Slice &index_value) {
+Iterator* SSTableIterator::BlockReader(SSTable *table, const Slice &index_value) {
     BlockHandle block_handle;
     Slice input = index_value;
 
@@ -77,7 +77,7 @@ Iterator* TableIterator::BlockReader(SSTable *table, const Slice &index_value) {
     return new BlockIterator(block);
 }
 
-void TableIterator::UpdateDataIterator() {
+void SSTableIterator::UpdateDataIterator() {
     if (!index_iter_->Valid()) {
       data_iter_ = nullptr;
       return;
@@ -91,13 +91,13 @@ void TableIterator::UpdateDataIterator() {
     // We need to use block_handle to get the data_iter
 }
 
-TableIterator::~TableIterator() {
+SSTableIterator::~SSTableIterator() {
   if (data_iter_ != nullptr) {
     delete data_iter_;
   }
 }
 
-TableIterator::TableIterator(Block *indexBlock) {
+SSTableIterator::SSTableIterator(Block *indexBlock) {
   index_iter_ = new BlockIterator(indexBlock);
 }
 

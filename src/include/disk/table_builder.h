@@ -22,6 +22,7 @@ namespace koishidb {
         // add the key and value to the Table
         void Add(const Slice& key, const Slice& value);
 
+        //Flush the data to the Writable file
         void Flush();
 
         // finish the build, should be called when finish and abandon not have been called;

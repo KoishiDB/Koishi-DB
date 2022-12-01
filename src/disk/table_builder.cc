@@ -39,6 +39,7 @@ namespace koishidb {
     Rep* r = rep_;
     assert(!r->closed); // should not closed
 
+    // InternalKey Test needed to be added
     assert(r->last_key.empty() || r->opt->cmp->Compare(key, r->last_key.c_str()) == 1);
 
     if (r->pending_index_block) {

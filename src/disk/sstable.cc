@@ -1,9 +1,9 @@
-#include "disk/table.h"
+#include "disk/sstable.h"
 #include "disk/random_access_file.h"
 #include "disk/format.h"
 #include "disk/filterblock_reader.h"
 #include "disk/block.h"
-#include "disk/table_iterator.h"
+#include "disk/sstable_iterator.h"
 #include "common/option.h"
 #include "common/common.h"
 #include "logger.h"
@@ -93,6 +93,6 @@ std::optional<BlockContent*> ReadBlock(RandomAccessFile *file, const BlockHandle
 
 
 Iterator* SSTable::NewIterator() const {
-    return new TableIterator(rep_->index_block);
+    return new SSTableIterator(rep_->index_block);
 }
 }; // namespace koishidb

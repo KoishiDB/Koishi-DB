@@ -5,6 +5,8 @@
 #include "common/status.h"
 #include "common/common.h"
 #include "util/encode.h"
+#include "disk/sstable.h"
+#include <optional>
 namespace koishidb {
 
 class BlockHandle {

@@ -9,6 +9,8 @@
 namespace koishidb {
 
   // Only Support POSIX system call
+  // May change it later -> by passing to filename and open the file and can hide the file descriptor
+  // WritableFile can not be copied but can be moved
   class WritableFile {
   public:
     WritableFile(int fd, std::string filename): pos_(0), filename_(filename), dir_(Dirname(filename)), fd_(fd) {}
