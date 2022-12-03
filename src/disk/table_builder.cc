@@ -95,13 +95,14 @@ namespace koishidb {
   Status TableBuilder::Finish() {
     Rep* r = rep_;
     assert(!r->closed);
-    r->closed = true;
+
 
     Flush(); // flush the left data block.
+    r->closed = true;
     if (!ok()) {
       return status();
     }
-    // currently we have write the all the data blocks and build up a newly index block
+    // currently we have write the all the data blocks and build up a new index block
     // what we need to do is to write them to the table file.
     // 1.Write Filter Blocks->
     // 2.Write MetaIndex Block

@@ -26,6 +26,9 @@ struct SSTable::Rep {
 };
 
 
+SSTable::~SSTable() {
+    delete rep_;
+}
 
 std::optional<SSTable *> SSTable::Open(const Option *opt, RandomAccessFile *file, size_t file_size) {
     if (file_size < kFixedFooterSize) {
@@ -51,7 +54,8 @@ std::optional<SSTable *> SSTable::Open(const Option *opt, RandomAccessFile *file
       return {};
     }
 
-    Block* block = new Block(index_block_content.value());
+    Block* block = new Block(index_block_content.value().get());
+
     // optional 's behavior is like an iterator
     //set the rep_ now;
 
@@ -74,11 +78,16 @@ std::optional<SSTable *> SSTable::Open(const Option *opt, RandomAccessFile *file
     return { table };
 }
 
-std::optional<BlockContent*> ReadBlock(RandomAccessFile *file, const BlockHandle &block_handle) {
-    BlockContent* result;
+
+std::optional<std::unique_ptr<BlockContent>> ReadBlock(RandomAccessFile *file, const BlockHandle &block_handle) {
+    // 返回一个临时变量的地址, the key part.
+    // needs to delete->
+    std::unique_ptr<BlockContent> result(new BlockContent);
 
     char* block_content = new char[block_handle.size()];
-    Status status = file->Read(block_handle.offset(), block_handle.size(), result, block_content);
+    // use unique_ptr.get() to get the raw pointer and never acquire the ownership
+    // can use unique_ptr.release() to release the ownership
+    Status status = file->Read(block_handle.offset(), block_handle.size(), result.get(), block_content);
     if (!status.ok()) {
       delete[] block_content;
       return {};
@@ -88,11 +97,11 @@ std::optional<BlockContent*> ReadBlock(RandomAccessFile *file, const BlockHandle
       LOG_ERROR("read block error");
       return {};
     }
-    return { result };
+    return { std::move(result) };
 }
 
 
 Iterator* SSTable::NewIterator() const {
-    return new SSTableIterator(rep_->index_block);
+    return new SSTableIterator(rep_->index_block, rep_->file);
 }
 }; // namespace koishidb

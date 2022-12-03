@@ -9,7 +9,9 @@ namespace koishidb {
 // easy version of the table level iterator
 void SSTableIterator::SeekToFirst() {
   index_iter_->SeekToFirst();
+  index_iter_->Next();
   UpdateDataIterator();
+
 }
 
 void SSTableIterator::Next() {
@@ -60,7 +62,7 @@ bool SSTableIterator::Seek(const Slice &target) {
   return data_iter_->Seek(target);
 }
 
-Iterator* SSTableIterator::BlockReader(SSTable *table, const Slice &index_value) {
+Iterator* SSTableIterator::BlockReader(RandomAccessFile *random_access_file, const Slice &index_value) {
     BlockHandle block_handle;
     Slice input = index_value;
 
@@ -68,11 +70,11 @@ Iterator* SSTableIterator::BlockReader(SSTable *table, const Slice &index_value)
     if (!s.ok()) {
       return nullptr;
     }
-    auto block_content = ReadBlock(table->random_access_file(), block_handle);
+    auto block_content = ReadBlock(random_access_file, block_handle);
     if (!block_content.has_value()) {
       return nullptr;
     }
-    Block* block = new Block(block_content.value());
+    Block* block = new Block(block_content.value().get());
 
     return new BlockIterator(block);
 }
@@ -86,9 +88,13 @@ void SSTableIterator::UpdateDataIterator() {
     if (data_iter_ != nullptr) {
       delete data_iter_; // new create
     }
-    data_iter_ = BlockReader(table_, block_handle);
+    //assert(handler.offset() == 0);
+
+    data_iter_ = BlockReader(random_access_file_, block_handle);
     data_block_handle_ = std::string(block_handle.data(), block_handle.size());
     // We need to use block_handle to get the data_iter
+    assert(data_iter_ != nullptr);
+    data_iter_->SeekToFirst();
 }
 
 SSTableIterator::~SSTableIterator() {
@@ -97,8 +103,10 @@ SSTableIterator::~SSTableIterator() {
   }
 }
 
-SSTableIterator::SSTableIterator(Block *indexBlock) {
+SSTableIterator::SSTableIterator(Block *indexBlock, RandomAccessFile* random_access_file) {
   index_iter_ = new BlockIterator(indexBlock);
+  random_access_file_ = random_access_file;
+  data_iter_ = nullptr;
 }
 
 };

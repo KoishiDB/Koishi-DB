@@ -26,9 +26,7 @@ class BlockHandle;
     SSTable(const SSTable& that) = delete;
     SSTable& operator=(const SSTable& that) = delete;
 
-    ~SSTable() {
-      delete rep_;
-    }
+    ~SSTable();
 
     // we don't need the read option now, and maybe it can be implemented later
     // This iterator needs to manually delete, maybe it can be replaced by unique_ptr?

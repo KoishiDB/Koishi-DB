@@ -4,11 +4,11 @@
 #include "util/iterator.h"
 
 namespace koishidb {
-class SSTable;
+class RandomAccessFile;
 class Block;
 class SSTableIterator: public Iterator {
 public:
-  SSTableIterator(Block* indexBlock);
+  SSTableIterator(Block* indexBlock, RandomAccessFile* random_access_file);
   SSTableIterator(const SSTableIterator& that) = delete;
   SSTableIterator& operator=(const SSTableIterator& that) = delete;
 
@@ -33,13 +33,14 @@ private:
 
   void UpdateDataIterator();
 
-  SSTable* table_;
 
-  Iterator* BlockReader(SSTable* table, const Slice& index_value);
+
+  Iterator* BlockReader(RandomAccessFile* random_access_file, const Slice& index_value);
 
   Iterator* index_iter_;
   Iterator* data_iter_;
 
+  RandomAccessFile* random_access_file_;
   // used to skip the unnecessary data block set.
   std::string data_block_handle_;
 };
