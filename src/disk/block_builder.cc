@@ -11,6 +11,7 @@ namespace koishidb {
 
   // Key -> Internal_key ->
   // Value -> might be empty
+  // Use Add don't need to maintain the key/value lifetime.
   void BlockBuilder::Add(const Slice &key, const Slice &value) {
       // Data format -> varint: Internal_key.size(), value.size()
       // key, value;

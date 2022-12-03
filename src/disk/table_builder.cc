@@ -39,6 +39,7 @@ namespace koishidb {
     Rep* r = rep_;
     assert(!r->closed); // should not closed
 
+    // InternalKey Test needed to be added
     assert(r->last_key.empty() || r->opt->cmp->Compare(key, r->last_key.c_str()) == 1);
 
     if (r->pending_index_block) {
@@ -94,13 +95,14 @@ namespace koishidb {
   Status TableBuilder::Finish() {
     Rep* r = rep_;
     assert(!r->closed);
-    r->closed = true;
+
 
     Flush(); // flush the left data block.
+    r->closed = true;
     if (!ok()) {
       return status();
     }
-    // currently we have write the all the data blocks and build up a newly index block
+    // currently we have write the all the data blocks and build up a new index block
     // what we need to do is to write them to the table file.
     // 1.Write Filter Blocks->
     // 2.Write MetaIndex Block

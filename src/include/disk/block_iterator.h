@@ -7,7 +7,7 @@
 
 namespace koishidb {
   struct Block;
-  class BlockIterator: Iterator {
+  class BlockIterator:public Iterator {
   public:
       BlockIterator(Block* block);
 

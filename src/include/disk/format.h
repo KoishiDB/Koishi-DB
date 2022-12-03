@@ -5,6 +5,8 @@
 #include "common/status.h"
 #include "common/common.h"
 #include "util/encode.h"
+#include "disk/sstable.h"
+#include <optional>
 namespace koishidb {
 
 class BlockHandle {
@@ -49,9 +51,12 @@ inline Status BlockHandle::DecodeFrom(Slice* input) {
   }
 }
 
+
 // class Footer
 class Footer {
 public:
+
+
   Footer() = default;
   Footer(const Footer&) = delete;
   Footer& operator=(const Footer&) = delete;
@@ -63,6 +68,10 @@ public:
   void set_filter(BlockHandle filter_block_handle) {
     filter_block_handle_ = filter_block_handle;
   }
+
+  BlockHandle index_handle() { return index_block_handle_; }
+
+  BlockHandle filter_handle() { return filter_block_handle_; }
 
   void EncodeTo(std::string* dst);
 
@@ -87,6 +96,10 @@ inline Status Footer::DecodeFrom(Slice *input) {
   s = filter_block_handle_.DecodeFrom(input);
   return s;
 }
+
+
+// Given the block handle and return the data of the offset.
+std::optional<std::unique_ptr<BlockContent>> ReadBlock(RandomAccessFile* file, const BlockHandle& blockHandle);
 };
 
 #endif
