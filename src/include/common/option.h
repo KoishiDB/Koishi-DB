@@ -10,11 +10,8 @@ namespace koishidb {
         Option();
         Option(const Comparator* opt);
         const Comparator* cmp; // to compare the last key
-        ~Option() {
-          if (cmp != nullptr) {
-            delete cmp;
-          }
-        }
+        ~Option();
+
     };
 
 };

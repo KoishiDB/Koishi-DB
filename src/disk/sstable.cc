@@ -80,8 +80,7 @@ std::optional<SSTable *> SSTable::Open(const Option *opt, RandomAccessFile *file
 
 
 std::optional<std::unique_ptr<BlockContent>> ReadBlock(RandomAccessFile *file, const BlockHandle &block_handle) {
-    // 返回一个临时变量的地址, the key part.
-    // needs to delete->
+    // use smart pointer to automatically delete.
     std::unique_ptr<BlockContent> result(new BlockContent);
 
     char* block_content = new char[block_handle.size()];

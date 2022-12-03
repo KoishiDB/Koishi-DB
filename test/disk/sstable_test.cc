@@ -54,10 +54,11 @@ TEST(Table_test, BasicTest) {
       std::string value = "temp_test_val" + std::to_string(i);
       EXPECT_EQ(std::string(sstable_iter->Key().data(), sstable_iter->Key().size()), key);
       EXPECT_EQ(std::string(sstable_iter->Value().data(), sstable_iter->Value().size()), value);
-
-
     }
     EXPECT_TRUE(sstable_iter->Valid());
+    sstable_iter->Next();
+    EXPECT_FALSE(sstable_iter->Valid());
+
 
     delete opt;
     // Tidy up
