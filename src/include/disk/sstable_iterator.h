@@ -6,9 +6,10 @@
 namespace koishidb {
 class RandomAccessFile;
 class Block;
+class Option;
 class SSTableIterator: public Iterator {
 public:
-  SSTableIterator(Block* indexBlock, RandomAccessFile* random_access_file);
+  SSTableIterator(Block* indexBlock, RandomAccessFile* random_access_file, const Option* opt);
   SSTableIterator(const SSTableIterator& that) = delete;
   SSTableIterator& operator=(const SSTableIterator& that) = delete;
 
@@ -40,6 +41,7 @@ private:
   Iterator* index_iter_;
   Iterator* data_iter_;
 
+  const Option* opt_;
   RandomAccessFile* random_access_file_;
   // used to skip the unnecessary data block set.
   std::string data_block_handle_;

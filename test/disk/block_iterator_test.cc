@@ -7,8 +7,16 @@
 
 #include "gtest/gtest.h"
 namespace koishidb {
+    class UserComparator: public Comparator {
+        int Compare(const Slice& a, const Slice& b) const {
+            return a.Compare(b);
+        }
+        std::string Name() const {
+            return "user_key_comparator";
+        }
+    };
     TEST(BlockIterator_test, BlockIteratorBasicTest) {
-        BlockBuilder* block_builder = new BlockBuilder(new Option());
+        BlockBuilder* block_builder = new BlockBuilder(new Option(new UserComparator()));
         block_builder->Add("aaa", "123");
         block_builder->Add("bbb", "456");
         block_builder->Add("ccc", "789");
@@ -19,7 +27,7 @@ namespace koishidb {
         b.data = rep.data();
         b.size = rep.size();
 
-        BlockIterator* iter = new BlockIterator(&b);
+        BlockIterator* iter = new BlockIterator(&b, block_builder->GetOption());
         iter->SeekToFirst();
         // should invoke next first
         iter->Next();

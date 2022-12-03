@@ -3,15 +3,21 @@
 
 #include "util/iterator.h"
 #include "util/comparator.h"
+#include "common/common.h"
 // Block iterator 底层是一个
 
 namespace koishidb {
   struct Block;
+  class Option;
   class BlockIterator:public Iterator {
   public:
-      BlockIterator(Block* block);
+      // default the internalkey iterator
+      BlockIterator(Block* block, const Option* opt);
 
-      ~BlockIterator();
+
+
+
+      ~BlockIterator() = default;
 
       BlockIterator(const BlockIterator& that) = delete;
 

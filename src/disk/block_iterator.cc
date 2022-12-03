@@ -1,16 +1,17 @@
 #include "disk/block_iterator.h"
 #include "disk/block.h"
+#include "common/option.h"
 #include "util/util.h"
 #include "type/key.h"
 
 #include <iostream>
 namespace koishidb {
-    BlockIterator::BlockIterator(Block *block) : data_(block->data), size_(block->size), cmp_(new InternalKeyComparator()){
+    BlockIterator::BlockIterator(Block *block, const Option* opt) : data_(block->data), size_(block->size), cmp_(opt->cmp){
         SeekToFirst();
     }
-    BlockIterator::~BlockIterator() {
-        delete cmp_;
-    }
+
+
+
 
     void BlockIterator::SeekToFirst() {
         offset_ = 0;
@@ -41,11 +42,12 @@ namespace koishidb {
     bool BlockIterator::Seek(const Slice &target) {
         SeekToFirst();
         // linear
-        while (cmp_->Compare(Key(), target) == -1) {
+        Next();
+        while (Valid() && cmp_->Compare(Key(), target) == -1) {
             Next();
         }
 
-        if (cmp_->Compare(Key(), target) == 0) {
+        if (Valid() && cmp_->Compare(Key(), target) == 0) {
             return true;
         } else {
             return false;

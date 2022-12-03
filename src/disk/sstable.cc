@@ -14,7 +14,6 @@ struct SSTable::Rep {
     delete filter_block_reader;
     delete[] filter_data;
     delete index_block;
-
   }
   const Option* option;
   // something that should be a ptr;
@@ -72,7 +71,7 @@ std::optional<SSTable *> SSTable::Open(const Option *opt, RandomAccessFile *file
     rep->status = Status();
     rep->filter_block_reader = new FilterBlockReader(Slice(rep->filter_data));
     rep->file = file;
-
+    rep->option = opt;
     SSTable* table = new SSTable(rep);
     table->file_ = file;
     return { table };
@@ -99,8 +98,26 @@ std::optional<std::unique_ptr<BlockContent>> ReadBlock(RandomAccessFile *file, c
     return { std::move(result) };
 }
 
+std::optional<std::string> SSTable::InternalGet(const koishidb::Slice &key) {
+    // first find the bloom_filter;
+    Rep *r = rep_;
+    if (bloom_filter_.KeyMayMatch(key, r->filter_data) == false) {
+        return {};
+    }
+    Iterator* iter = NewIterator();
+    iter->SeekToFirst();
+    bool flag = iter->Seek(key);
+    if (!iter->Valid() || flag == false) {
+        return {};
+    }
+    return { iter->Value().ToString() };
+
+    delete iter;
+}
+
+
 
 Iterator* SSTable::NewIterator() const {
-    return new SSTableIterator(rep_->index_block, rep_->file);
+    return new SSTableIterator(rep_->index_block, rep_->file, rep_->option);
 }
 }; // namespace koishidb

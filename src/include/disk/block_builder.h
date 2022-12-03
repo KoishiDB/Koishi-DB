@@ -25,6 +25,8 @@ namespace koishidb {
 
         bool Empty() { return this->EstimatedSize() == 0; }
 
+        const Option* GetOption() { return opt_; }
+
         // used only for unit test.
         std::string Data() { return rep_; }
     private:

@@ -3,9 +3,20 @@
 #include "common/option.h"
 #include "gtest/gtest.h"
 
+
+
 namespace koishidb {
+
+    class UserComparator: public Comparator {
+        int Compare(const Slice& a, const Slice& b) const {
+            return a.Compare(b);
+        }
+        std::string Name() const {
+            return "user_key_comparator";
+        }
+    };
     TEST(BlockBuilder_test, BlockBuilderBasicTest) {
-       BlockBuilder* block_builder = new BlockBuilder(new Option());
+       BlockBuilder* block_builder = new BlockBuilder(new Option(new UserComparator()));
        int tot_size = 0;
        Slice key1("aaaa"), value1("2323232322323");
        Slice key2("bbbb"), value2("xxxxsssssljlee");

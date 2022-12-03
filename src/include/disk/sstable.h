@@ -5,6 +5,8 @@
 #include <optional>
 #include <memory>
 #include "util/iterator.h"
+#include "util/bloom_filter.h"
+#include "common/common.h"
 
 
 namespace koishidb {
@@ -33,13 +35,17 @@ class BlockHandle;
     Iterator* NewIterator() const;
 
     RandomAccessFile* random_access_file() const { return file_; }
+
+    std::optional<std::string> InternalGet(const Slice& key);
+
   private:
     // TODO add the table cache
 
     struct Rep;
-    explicit SSTable(Rep* rep): rep_(rep) {}
+    explicit SSTable(Rep* rep): rep_(rep), bloom_filter_(kBloomFilterPerKeySize) {}
     Rep* rep_;
     RandomAccessFile* file_; //used to create the table iterator only
+    BloomFilter bloom_filter_;
   };
 };
 

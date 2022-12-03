@@ -32,9 +32,17 @@ namespace koishidb {
         return !(*this == that);
     }
 
+
+// compare < 0 = 0, > 0
     int Slice::Compare(const Slice& that) const {
         const size_t min_len = (size_ < that.size_) ? size_ : that.size_;
         int r = memcmp(data_, that.data_, min_len);
+        if (r < 0) {
+            return -1;
+        }
+        if (r > 0) {
+            return 1;
+        }
         if (r == 0) {
             if (size_ < that.size_)
                 r = -1;

@@ -13,7 +13,6 @@
 #include "gtest/gtest.h"
 namespace koishidb {
 
-// can be
 class UserComparator: public Comparator {
   int Compare(const Slice& a, const Slice& b) const {
       return a.Compare(b);
@@ -22,6 +21,7 @@ class UserComparator: public Comparator {
       return "user_key_comparator";
   }
 };
+
 
 
 TEST(Table_test, BasicTest) {
@@ -59,6 +59,18 @@ TEST(Table_test, BasicTest) {
     sstable_iter->Next();
     EXPECT_FALSE(sstable_iter->Valid());
 
+    for (int i = 1; i < 10; i++) {
+        // std::optional can compare directly;
+        // if std::optional == std::nullopt, then std::nulloptr < other object == true forever
+        std::string key = "temp_test_key" + std::to_string(i);
+        std::string value = "temp_test_val" + std::to_string(i);
+        EXPECT_EQ(value, sstable->InternalGet(key));
+    }
+
+    for (int i = 11; i < 20; i++) {
+        std::string key = "temp_test_key" + std::to_string(i);
+        EXPECT_EQ(std::nullopt, sstable->InternalGet(key));
+    }
 
     delete opt;
     // Tidy up

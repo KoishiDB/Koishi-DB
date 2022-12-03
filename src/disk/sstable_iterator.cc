@@ -3,6 +3,7 @@
 #include "disk/format.h"
 #include "disk/block.h"
 #include "disk/block_iterator.h"
+#include "common/option.h"
 
 namespace koishidb {
 
@@ -76,7 +77,7 @@ Iterator* SSTableIterator::BlockReader(RandomAccessFile *random_access_file, con
     }
     Block* block = new Block(block_content.value().get());
 
-    return new BlockIterator(block);
+    return new BlockIterator(block, opt_);
 }
 
 void SSTableIterator::UpdateDataIterator() {
@@ -103,8 +104,8 @@ SSTableIterator::~SSTableIterator() {
   }
 }
 
-SSTableIterator::SSTableIterator(Block *indexBlock, RandomAccessFile* random_access_file) {
-  index_iter_ = new BlockIterator(indexBlock);
+SSTableIterator::SSTableIterator(Block *indexBlock, RandomAccessFile* random_access_file, const Option* opt): opt_(opt) {
+  index_iter_ = new BlockIterator(indexBlock, opt_);
   random_access_file_ = random_access_file;
   data_iter_ = nullptr;
 }
