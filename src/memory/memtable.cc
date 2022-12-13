@@ -7,6 +7,9 @@ namespace koishidb {
     // disk
     class MemtableIterator: public Iterator {
     public:
+
+        ~MemtableIterator() = default;
+
         MemtableIterator(Memtable::Table* table): iter_(table) {}
         bool Valid() const override {
             return iter_.Valid();
@@ -14,16 +17,14 @@ namespace koishidb {
         void Next() override {
             iter_++;
         }
-        void Prev() override {
-           // we don't need this method in memtable iterator
-           // iff need, we can append it later
-        }
+
         Slice Key() const override {
           Slice memtable_key = iter_.Key();
           Slice internal_key;
           ExtractInternalKey(memtable_key, &internal_key);
           return internal_key;
         }
+
         Slice Value() const override {
             Slice memtable_key = iter_.Key();
             uint32_t internal_key_len;
@@ -33,11 +34,9 @@ namespace koishidb {
             GetVarint32(&memtable_key, &value_len);
             return Slice(memtable_key.data(), value_len);
         }
+
         void SeekToFirst() override {
             assert(iter_.Valid());
-        }
-        void SeekToLast() override {
-            // we don't need this method currently, we can do it later;
         }
 
 
@@ -45,10 +44,11 @@ namespace koishidb {
         // private name
         Memtable::Table::Iterator iter_;
         // this function is useless, we don't and should not use it
-        bool Seek(const Slice& target) override {
-            // TODO
-            return false;
-        }
+        bool Seek(const Slice& target) override {}
+
+        void SeekToLast() override {}
+
+        void Prev() override {}
     };
 
     // Be careful the Get returns the total memtable entry
@@ -63,6 +63,8 @@ namespace koishidb {
         return true;
     }
 
+    // We should always use the CreateMemtableKey to create memtable_key and insert it into the
+    // memtable, for we will call the delete method in BuildTable function
     void Memtable::Insert(const Slice& memtable_key) {
         table_->Insert(memtable_key);
     }

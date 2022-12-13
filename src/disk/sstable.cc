@@ -110,9 +110,9 @@ std::optional<std::string> SSTable::InternalGet(const koishidb::Slice &key) {
     if (!iter->Valid() || flag == false) {
         return {};
     }
-    return { iter->Value().ToString() };
-
     delete iter;
+
+    return { iter->Value().ToString() };
 }
 
 
@@ -120,4 +120,15 @@ std::optional<std::string> SSTable::InternalGet(const koishidb::Slice &key) {
 Iterator* SSTable::NewIterator() const {
     return new SSTableIterator(rep_->index_block, rep_->file, rep_->option);
 }
+
+
+void PrintFileMeta(FileMeta& meta) {
+    LOG_INFO("file size %d", meta.file_size);
+    LOG_INFO("file number %d", meta.file_size);
+    LOG_INFO("smallest key %s", meta.smallest_key.ToString().data());
+    LOG_INFO("lagrest key %s", meta.largest_key.ToString().data());
+}
+
+
+
 }; // namespace koishidb

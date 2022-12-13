@@ -1,5 +1,4 @@
 #include <fcntl.h>
-#include <unistd.h>
 
 #include "disk/sstable_iterator.h"
 #include "disk/table_builder.h"
@@ -7,7 +6,6 @@
 #include "disk/writable_file.h"
 #include "disk/random_access_file.h"
 #include "common/option.h"
-#include "type/key.h"
 #include "util/comparator.h"
 
 #include "gtest/gtest.h"

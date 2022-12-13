@@ -22,8 +22,6 @@ namespace koishidb {
         // add the key and value to the Table
         void Add(const Slice& key, const Slice& value);
 
-        //Flush the data to the Writable file
-        void Flush();
 
         // finish the build, should be called when finish and abandon not have been called;
         Status Finish();
@@ -42,6 +40,9 @@ namespace koishidb {
         bool ok() const { return status().ok(); }
 
         void WriteBlock(BlockBuilder* block_builder, BlockHandle* block_handle);
+
+        //Flush the data to the Writable file
+        void Flush();
 
         struct Rep;
         Rep* rep_;

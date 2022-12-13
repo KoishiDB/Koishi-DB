@@ -1,7 +1,9 @@
-#include "util/util.h"
-namespace koishidb {
+#include <fcntl.h>
+#include <unistd.h>
 
-    // need to add some test
+#include "util/util.h"
+#include "util/encode.h"
+namespace koishidb {
 
     void ExtractInternalKey(Slice memtable_key, Slice* internal_key) {
         // In fact, metable_key is the entry that inserted into the skiplist
@@ -15,6 +17,9 @@ namespace koishidb {
         *number = (*reinterpret_cast<const SequenceNumber*>(internal_key.data() + user_key->size()) >> 8);
     }
 
+    // Create an InternalKey
+    // When we create the internal key, we should be careful when dump it into the disk
+    // we should free the memory of it
     Slice CreateInternalKey(const Slice& user_key, SequenceNumber snapshot, KeyType type) {
         size_t usize = user_key.size();
         size_t needed = usize + 8;
@@ -28,6 +33,8 @@ namespace koishidb {
     }
 
     // Create a memtable key
+    // When we create the memtable key, we should be careful when dump it into the disk
+    // we should free the memory of it
     Slice CreateMemtableKey(const Slice& user_key, SequenceNumber snapshot, const Slice& value, KeyType key_type) {
         size_t usize = user_key.size();
         size_t vsize = value.size();
@@ -48,5 +55,23 @@ namespace koishidb {
         return Slice(dst, size);
     }
 
+    // TODO, we need to handle the wrong format memtable_key to avoid the crush.
+    void ExtractValueFromMemtable(Slice memtable_key, std::string* result) {
+        uint32_t internal_key_len;
+        GetVarint32(&memtable_key, &internal_key_len);
+        memtable_key.Advance(internal_key_len);
+        uint32_t  value_len;
+        GetVarint32(&memtable_key, &value_len);
+        result->assign(memtable_key.data(), value_len);
+    }
+
+    bool Remove(const std::string& file_name) {
+        int result = ::remove(file_name.data());
+
+        if (result == -1) {
+            return false;
+        }
+        return true;
+    }
 
 }

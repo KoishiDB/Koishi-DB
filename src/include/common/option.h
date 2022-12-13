@@ -8,6 +8,8 @@ namespace koishidb {
     // currently option owned the Comparator and should delete it
     struct Option {
         Option();
+
+        // we should let the Option delete the Comparator
         Option(const Comparator* opt);
         const Comparator* cmp; // to compare the last key
         ~Option();

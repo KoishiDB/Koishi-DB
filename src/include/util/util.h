@@ -67,6 +67,7 @@ namespace koishidb {
 
     Slice CreateMemtableKey(const Slice& user_key, SequenceNumber snapshot, const Slice& value, KeyType type);
 
+    void ExtractValueFromMemtable(Slice memtable_key, std::string* result);
 
     // init to make skiplist node height random
     inline void rng() {
@@ -80,6 +81,9 @@ namespace koishidb {
         return height;
     }
 
+    // Remove the file
+    // when error happens, we should remove the file
+    bool Remove(const std::string& file_name);
 };
 
 #endif

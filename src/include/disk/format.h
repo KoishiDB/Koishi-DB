@@ -2,12 +2,22 @@
 #define KOISHIDB_SRC_INCLUDE_DISK_FORMAT_H
 
 #include "type/slice.h"
+#include "type/key.h"
 #include "common/status.h"
 #include "common/common.h"
 #include "util/encode.h"
 #include "disk/sstable.h"
 #include <optional>
 namespace koishidb {
+
+    struct FileMeta {
+        uint64_t file_size;
+        uint64_t number;
+        int refs;
+        InternalKey smallest_key;
+        InternalKey largest_key;
+    };
+
 
 class BlockHandle {
 public:
@@ -100,6 +110,9 @@ inline Status Footer::DecodeFrom(Slice *input) {
 
 // Given the block handle and return the data of the offset.
 std::optional<std::unique_ptr<BlockContent>> ReadBlock(RandomAccessFile* file, const BlockHandle& blockHandle);
+
+// Print the formatted file meta for debugging
+void PrintFileMeta(FileMeta& meta);
 };
 
 #endif
