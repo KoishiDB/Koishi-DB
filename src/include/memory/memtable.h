@@ -45,6 +45,8 @@ namespace koishidb {
 
   class Memtable {
   public:
+      // every memtable maintain a skiplist
+
       Memtable() : table_(new SkipList<Slice, MemtableKeyComparator>(new MemtableKeyComparator())) {}
 
       Memtable(const Memtable& that) = delete;

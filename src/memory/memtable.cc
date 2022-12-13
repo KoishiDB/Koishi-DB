@@ -3,7 +3,8 @@
 
 namespace koishidb {
 
-    // Look how the iterator design
+    // We don't need the memtable Iterator to seek for key, we just need it to iterate the memtable and dump it to
+    // disk
     class MemtableIterator: public Iterator {
     public:
         MemtableIterator(Memtable::Table* table): iter_(table) {}
@@ -39,19 +40,22 @@ namespace koishidb {
             // we don't need this method currently, we can do it later;
         }
 
+
+    private:
+        // private name
+        Memtable::Table::Iterator iter_;
+        // this function is useless, we don't and should not use it
         bool Seek(const Slice& target) override {
             // TODO
             return false;
         }
-    private:
-        // private name
-        Memtable::Table::Iterator iter_;
     };
 
-
+    // Be careful the Get returns the total memtable entry
+    // if we need to extract the value, we should invoke the extract method
     bool Memtable::Get(const Slice& memtable_key, std::string* result) {
         Slice ret;
-        bool flag =  table_->FindFirstGreaterOrEqual(memtable_key, &ret);
+        bool flag = table_->FindFirstGreaterOrEqual(memtable_key, &ret);
         if (flag == false) {
             return false;
         }

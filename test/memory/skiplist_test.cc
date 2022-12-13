@@ -1,10 +1,8 @@
 #include "memory/skiplist.h"
 #include "memory/memtable.h"
 #include "util/util.h"
-#include "util/comparator.h"
 #include "gtest/gtest.h"
 
-#include "logger.h"
 
 #include <set>
 
@@ -77,14 +75,13 @@ namespace koishidb {
     }
     TEST(SkipList_test, SkipListSliceInteratorTest) {
         SkipList<Slice, MemtableKeyComparator> skipList(new MemtableKeyComparator());
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 10; i++) {
             std::string key = "user_key" + std::to_string(i);
             skipList.Insert(CreateMemtableKey(key, 1, "", KeyType::kTypeValue));
         }
         SkipList<Slice, MemtableKeyComparator>::Iterator iter(&skipList);
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 10; i++) {
             std::string key = "user_key" + std::to_string(i);
-            std::cout << key << std::endl;
             Slice memtable_key = CreateMemtableKey(key, 1, "", KeyType::kTypeValue);
             EXPECT_EQ(memtable_key.ToString(), iter.Key().ToString());
             iter.Next();

@@ -95,6 +95,8 @@ namespace koishidb {
     };
 
     template<typename K, typename Comparator>
+
+    // we should always let the skiplist free the passed comparator
     SkipList<K, Comparator>::SkipList(Comparator* cmp) : cmp_(cmp) {
         head_ = new SkipList<K, Comparator>::Node(kSkipListNodeMaxLevel);
     }
@@ -109,11 +111,11 @@ namespace koishidb {
             cur = next;
         }
         delete head_;
+        delete cmp_;
     }
 
     template<typename K, typename Comparator>
     void SkipList<K, Comparator>::Insert(const K &memtable_key) {
-        
         // if we could make sure that the key inserted is unique
         // we don't need the following code;
         // K result;
@@ -121,7 +123,6 @@ namespace koishidb {
         // if (ok == true && cmp_->Compare(result, memtable_key) == 0) {
         //     return;
         // }
-
         auto new_node = new SkipList<K, Comparator>::Node(memtable_key);
         auto ptr = head_;
         int cur_level = new_node->get_level() - 1;
