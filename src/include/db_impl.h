@@ -12,7 +12,7 @@
 
 namespace koishidb {
     // Is the scheduler of the DB storage part
-    class DBimpl: DB {
+    class DBimpl:public DB {
     private:
         struct Writer; // forward declare
     public:

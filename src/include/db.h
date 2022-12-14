@@ -6,7 +6,7 @@
 
 namespace koishidb {
     class DB {
-        // TODO: add the option of write and read options
+    public:
         virtual void Put(const Slice& key, const Slice& value) = 0;
 
         virtual bool Get(const Slice& key, std::string* value) = 0;

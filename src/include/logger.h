@@ -36,7 +36,7 @@
 #include <ctime>
 #include <string>
 
-namespace koishidb {
+
     using cstr = const char *;
     static constexpr auto PastLastSlash(cstr a, cstr b) -> cstr {
     return *a == '\0' ? b : *b == '/' ? PastLastSlash(a + 1, a + 1) : PastLastSlash(a + 1, b);
@@ -195,6 +195,6 @@ inline void OutputLogHeader(const char *file, int line, const char *func, int le
     ::fprintf(LOG_OUTPUT_STREAM, "%s [%s:%d:%s] %s - ", time_str, file, line, func, type);
     }
 
-}  // namespace koishidb
+
 
 #endif
