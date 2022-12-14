@@ -75,7 +75,7 @@ int main() {
                     LOG_INFO("[%d] Connection Established\n", conn_fd);
                     Parser::print_client_info(reinterpret_cast<sockaddr *>(&client_addr), client_addr_len);
                     Helper::set_non_block(conn_fd);
-                    epoll_helper::create_event(epoll_fd, conn_fd, EPOLLIN);
+                    epoll_helper::create_event(epoll_fd, conn_fd, EPOLLIN | EPOLLET);
 
                     // add to connection_storage
                     if (connection_storage.count(conn_fd)) {
@@ -132,6 +132,7 @@ int main() {
             // For not block, we should not invoke the get method of this future
         }
     }
+
     close(listen_fd);
 
     delete db;
