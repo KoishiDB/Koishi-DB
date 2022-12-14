@@ -15,20 +15,21 @@ constexpr int MAX_BUF = 1024;
 namespace koishidb {
 
 
-    bool Parser::read(int epoll_fd, int conn_fd, std::shared_ptr<connection> conn) {
+    bool Parser::read(int conn_fd, std::shared_ptr<connection> conn) {
         char buf[1024];
         int n = 0;
         conn->req = unique_ptr<request>(new request());
         string& read_storage = conn->read;
-        while ((n = ::read(conn_fd, buf, sizeof(buf))) > 0) {
-            LOG_INFO("[%d] received %d \n", conn_fd, n);
-            read_storage.append(buf, n);
-        }
-
+        n = ::read(conn_fd, buf, sizeof(buf));
         if (n < 0) {
             LOG_INFO("[%d] %d -> %s signal received \n", conn_fd, errno, ::strerror(errno));
             return false;
         }
+        LOG_INFO("[%d] received %d \n", conn_fd, n);
+        read_storage.append(buf, n);
+
+
+
         parse_all(conn, conn_fd);
         return true;
     }

@@ -49,14 +49,14 @@ int main() {
     ThreadPool thread_pool(thread_pool_size);
     // Config the listen port
     sockaddr_in server_addr{};
-    server_addr.sin_port = htons(8096);
+    server_addr.sin_port = htons(8094);
     server_addr.sin_family = AF_INET;
     server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
 
     int listen_fd = socket(AF_INET, SOCK_STREAM, 0);
     bind(listen_fd, reinterpret_cast<sockaddr *>(&server_addr), sizeof(server_addr));
     listen(listen_fd, thread_pool_size);
-    Helper::set_non_block(listen_fd);
+    LOG_INFO("server run in port 8096");
 
     // config epoll
     int epoll_fd = epoll_create(FD_SIZE);
@@ -75,7 +75,7 @@ int main() {
                     LOG_INFO("[%d] Connection Established\n", conn_fd);
                     Parser::print_client_info(reinterpret_cast<sockaddr *>(&client_addr), client_addr_len);
                     Helper::set_non_block(conn_fd);
-                    epoll_helper::create_event(epoll_fd, conn_fd, EPOLLIN | EPOLLOUT | EPOLLET);
+                    epoll_helper::create_event(epoll_fd, conn_fd, EPOLLIN);
 
                     // add to connection_storage
                     if (connection_storage.count(conn_fd)) {
@@ -88,18 +88,21 @@ int main() {
                 LOG_INFO("[%d] trigger epoll_in event \n", conn_fd);
                 auto connection = connection_storage.get(conn_fd);
                 std::future<bool> result = thread_pool.enqueue([&]()->bool {
-                    if (Parser::read(epoll_fd, conn_fd, connection)) {
+                    if (Parser::read(conn_fd, connection)) {
                         std::unique_ptr<request>& req =connection->req;
                         bool flag = true;
                         switch (req->op_code_) {
                             // Put
                             case 1: {
                                 db->Put(req->key_, req->value_);
+                                std::string server_answer = "1\r\n";
+                                ::write(conn_fd, server_answer.data(), server_answer.size());
                                 break;
                             }
                             case 2: {
                                 auto result = db->Get(req->key_, &req->value_);
                                 // Write back
+                                LOG_INFO("%s", req->value_.data());
                                 if (result) {
                                     std::string server_answer = "1\r\n";
                                     server_answer += req->value_;
@@ -113,41 +116,24 @@ int main() {
                             }
                             case 3: {
                                 db->Delete(req->key_);
+                                std::string server_answer = "1\r\n";
+                                ::write(conn_fd, server_answer.data(), server_answer.size());
                                 break;
                             }
                             // close connection
-                            case 4: {
-                                close(conn_fd);
-                                connection_storage.erase(conn_fd);
-                            }
                         }
+                        close(conn_fd);
+                        connection_storage.erase(conn_fd);
                         return flag;
                     }
                 });
-                if (result.get() == true) {
-                    LOG_INFO("operation success");
-                } else {
-                    LOG_INFO("operation failed");
-                }
-            } else if (ev & EPOLLOUT) {
 
-                int conn_fd = events[i].data.fd;
-                LOG_INFO("[%d] trigger epoll_out event \n", conn_fd);
-
-            } else if (ev & EPOLLERR) {
-                int conn_fd = events[i].data.fd;
-                error_flag = true;
-                LOG_INFO("[%d] trigger epoll_err event \n", conn_fd);
-                LOG_INFO("[%d] disposed \n", conn_fd);
             }
-        }
-        if (error_flag) {
-            break;
+            // For not block, we should not invoke the get method of this future
         }
     }
-
     close(listen_fd);
-    close(epoll_fd);
+
     delete db;
     return 0;
 }

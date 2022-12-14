@@ -22,5 +22,5 @@ target_link_libraries(koishidb
         )
 target_include_directories(koishidb PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 
-add_executable(main main.cc)
-target_link_libraries(main koishidb)
+add_executable(server main.cc)
+target_link_libraries(server koishidb)

@@ -13,7 +13,7 @@ namespace koishidb {
     public:
         static void print_client_info(sockaddr* client_addr, socklen_t client_addr_len);
 
-        static bool read(int epoll_fd, int conn_fd, std::shared_ptr<connection> conn);
+        static bool read(int conn_fd, std::shared_ptr<connection> conn);
 
     private:
         static void parse_all(std::shared_ptr<connection> conn, int conn_fd);
