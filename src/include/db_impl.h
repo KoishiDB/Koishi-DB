@@ -11,10 +11,16 @@
 
 
 namespace koishidb {
-
     // Is the scheduler of the DB storage part
     class DBimpl: DB {
+    private:
+        struct Writer; // forward declare
     public:
+
+        DBimpl();
+
+        ~DBimpl();
+
         void Put(const Slice& key, const Slice& value);
 
         bool Get(const Slice& key, std::string* value);
@@ -34,8 +40,10 @@ namespace koishidb {
 
         void CompactMemtable();
 
+        WriteBatch* BuildWriteBatchGroup(Writer** last_writer);
+
     private:
-        struct Writer; // declare here
+        // declare here
         std::deque<Writer* > writers_;
         std::shared_mutex rwlock_;
         std::mutex cv_lock_; // used only for condition variable
@@ -43,6 +51,7 @@ namespace koishidb {
         Memtable* immutable_memtable_;
         std::condition_variable background_work_finish_signal_; // used to notify the background compaction done
         bool background_compaction_schedule_;
+        SequenceNumber last_sequence_;
     };
 };
 

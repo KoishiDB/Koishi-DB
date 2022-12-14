@@ -18,7 +18,6 @@ namespace koishidb {
     // constant here
     constexpr int kSkipListNodeMaxLevel = 20;
     constexpr int kMemtableMaxSize = 4096; // max mutable memtable size
-    constexpr int kWriteBatchReserveCapacity = 20;
     constexpr int kWriteBatchHeader = 12;
     constexpr int kL0MaxFiles = 10;// should be modified later
     constexpr int kMaxMemtableSize = 4096;

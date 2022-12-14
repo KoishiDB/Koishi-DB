@@ -4,7 +4,7 @@
 #include "memory/write_batch.h"
 namespace koishidb {
     TEST(WriteBatch_test, WriteBatchIteratorTest) {
-        WriteBatch w(1);
+        WriteBatch w;
         for (int i = 0; i < 1000; i++) {
             std::string key = "user_key" + std::to_string(i);
             std::string value = "user_value" + std::to_string(i);

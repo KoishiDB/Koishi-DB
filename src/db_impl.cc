@@ -7,12 +7,26 @@
 namespace koishidb {
 
     struct DBimpl::Writer {
-        Writer(WriteBatch* batch): batch(batch) {}
+        Writer(WriteBatch* batch): batch(batch) {
+            done =false;
+        }
         Writer(const Writer& that) = default;
         WriteBatch* batch;
         bool done;
         std::condition_variable cv;
     };
+
+    DBimpl::DBimpl(): memtable_(new Memtable()), immutable_memtable_(nullptr) {
+    }
+
+    DBimpl::~DBimpl() {
+        if (memtable_ != nullptr) {
+            delete memtable_;
+        }
+        if (immutable_memtable_ != nullptr) {
+            delete immutable_memtable_;
+        }
+    }
 
   void DBimpl::Put(const Slice &key, const Slice &value) {
       WriteBatch write_batch;
@@ -25,10 +39,8 @@ namespace koishidb {
       write_batch.Delete(key);
       return Write(&write_batch);
   }
- // index
-  // sstable index block -> block->
-  // sstable -> index block
-  // filter block
+
+
   void DBimpl::Write(WriteBatch *update) {
     Writer w(update);
 
@@ -41,26 +53,29 @@ namespace koishidb {
         w.cv.wait(cv_lock);
         cv_lock.release();
     }
-    cv_lock_.unlock(); // to avoid dead lock and use rwlock to lock
+    cv_lock_.unlock(); // to avoid deadlock and use rwlock to lock
     // the task has been finished
     if (w.done) {
-
         return;
     }
-
     MakeRoomForWrite(); //
     Writer *last_writer = &w;
 
-    // TODO() BuildWriteBatch
     // get the write batch from the deque
-    WriteBatch* writer_batch = BuildWriteBatch();
+    WriteBatch* writer_batch = BuildWriteBatchGroup(&last_writer);
+
+    WriteBatchInternal::SetSequence(writer_batch, last_sequence_);
 
     writer_batch->InsertAll(memtable_);
 
     while (true) {
           Writer* ready = writers_.front();
           writers_.pop_front();
-          ready->cv.notify_one();
+          if (ready != &w) {
+              ready->done = true;
+              ready->cv.notify_one();
+          }
+
           if (ready == last_writer) break;
       }
       // Notify new head of write queue
@@ -73,26 +88,66 @@ namespace koishidb {
     bool DBimpl::Get(const Slice& key, std::string* value) {
        // shared lock mode;
        std::shared_lock<std::shared_mutex> lock(rwlock_);
-       CreateMemtableKey(key, UINT64_MAX, "", kTypeSeek);
+       Slice memtable_key = CreateMemtableKey(key, UINT64_MAX, "", kTypeSeek);
        Memtable* mem = memtable_;
        Memtable* imm = nullptr;
        if (immutable_memtable_ != nullptr) {
            imm = immutable_memtable_;
        }
-       if (mem->Get(key, value)) {
+       if (mem->Get(memtable_key, value)) {
+           delete memtable_key.data();
            return true;
-       } else if (immutable_memtable_ != nullptr && imm->Get(key, value)) {
+       } else if (immutable_memtable_ != nullptr && imm->Get(memtable_key, value)) {
+           delete memtable_key.data();
            return true;
        }
+       delete memtable_key.data();
 
        // Find from the disk
-
        return false;
     }
 
+    // REQUIRES hold the lock
+    // After invoking this function
+    // last_writer become the last Writer that has been written down
+    WriteBatch* DBimpl::BuildWriteBatchGroup(Writer** last_writer) {
+        Writer* first = writers_.front();
+        WriteBatch* result = first->batch;
+        assert(result != nullptr);
+
+        size_t size = WriteBatchInternal::Bytes(result);
+
+        // Allow the group to grow up to a maximum size, but if the
+        // original write is small, limit the growth so we do not slow
+        // down the small write too much.
+        size_t max_size = 1 << 20;
+        if (size <= (128 << 10)) {
+            max_size = size + (128 << 10);
+        }
+
+        *last_writer = first;
+        std::deque<Writer*>::iterator iter = writers_.begin();
+        ++iter;  // Advance past "first"
+        for (; iter != writers_.end(); ++iter) {
+            Writer* w = *iter;
+            if (w != nullptr) {
+                size += WriteBatchInternal::Bytes(w->batch);
+                if (size > max_size) {
+                    // Do not make batch too big
+                    break;
+                }
+                // Append to *result
+                WriteBatchInternal::Append(result, w->batch);
+            }
+            *last_writer = w;
+        }
+        return result;
+    }
+
+
     void DBimpl::CompactMemtable() {
 
-  }
+    }
     // the true compaction here
     // REQUIRE: get the exclusive lock
     void DBimpl::BackGroundCompaction() {
@@ -111,7 +166,6 @@ namespace koishidb {
       background_work_finish_signal_.notify_all();
   }
 
-    // why we need MaybeScheduleCompaction ->
     // REQUIRE Get the mutex first
     void DBimpl::MaybeScheduleCompaction() {
         // should create a thread to compact and never block it;

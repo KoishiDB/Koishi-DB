@@ -6,7 +6,8 @@ add_subdirectory(common)
 
 # add_libray must have files
 add_library(koishidb STATIC ${ALL_OBJECT_FILES}
-
+        db.cc
+        db_impl.cc
         )
 
 # target_link_libraries

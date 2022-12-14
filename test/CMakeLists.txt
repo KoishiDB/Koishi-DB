@@ -19,3 +19,7 @@ foreach(koishidb_test_source ${KOISHIDB_TEST_SOURCES})
 
 
 endforeach()
+
+add_executable(db_test EXCLUDE_FROM_ALL db_test.cc)
+gtest_discover_tests(db_test)
+target_link_libraries(db_test koishidb gtest gmock_main)

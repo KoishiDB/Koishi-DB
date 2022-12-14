@@ -3,10 +3,8 @@
 
 namespace koishidb {
     // WriteBatch has a header of  Sequence(8 bytes),count (4 bytes)
-    WriteBatch::WriteBatch(SequenceNumber seq) {
+    WriteBatch::WriteBatch() {
         Clear();
-        WriteBatchInternal::SetSequence(this, seq);
-        WriteBatchInternal::SetCount(this, 0);
     }
 
     void WriteBatch::Put(const Slice &key, const Slice &value) {

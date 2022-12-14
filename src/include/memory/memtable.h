@@ -77,6 +77,8 @@ namespace koishidb {
       std::atomic<bool> imm_;  // whether an immutable memtable exists
 
       std::shared_mutex rwlock_; // reader and writer lock, when is_mutable_ == true, should be used
+
+      size_t size_;
   };
 
 };

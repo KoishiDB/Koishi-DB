@@ -19,7 +19,7 @@ namespace koishidb {
     // user_key = key | value
     class WriteBatch {
     public:
-        WriteBatch(SequenceNumber seq);
+        WriteBatch();
 
         WriteBatch(const WriteBatch &that) = default;
 
@@ -48,7 +48,6 @@ namespace koishidb {
         friend class WriteBatchInternal;
 
         std::string rep_;
-
 
 
     };

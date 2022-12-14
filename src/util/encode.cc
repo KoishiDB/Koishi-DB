@@ -1,7 +1,7 @@
 #include "util/encode.h"
 
 namespace koishidb {
-  // use space and never use tab
+
   size_t EncodeVarint32(uint32_t value, char* dst) {
       uint8_t* ptr = reinterpret_cast<uint8_t *> (dst);
       size_t size = 0;
@@ -99,8 +99,6 @@ namespace koishidb {
       const char* data = dst->data();
       const char* limit = data + dst->size();
       const char* q = DecodeVarint32(data, value);
-      // TODO
-      // 这一行Slice是一个tmp 对象吗？
       *dst = Slice(q, limit - q);
   }
 

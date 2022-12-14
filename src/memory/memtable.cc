@@ -53,6 +53,9 @@ namespace koishidb {
         void Prev() override {}
     };
 
+    size_t Memtable::EstimatedSize() {
+        return size_;
+    }
 
     bool Memtable::Get(const Slice& memtable_key, std::string* result) {
         Slice ret;
@@ -68,6 +71,7 @@ namespace koishidb {
     // memtable, for we will call the delete method in BuildTable function
     void Memtable::Insert(const Slice& memtable_key) {
         table_->Insert(memtable_key);
+        size_ += memtable_key.size();
     }
 
     Iterator* Memtable::NewIterator() {
