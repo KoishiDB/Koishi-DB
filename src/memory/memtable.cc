@@ -44,22 +44,23 @@ namespace koishidb {
         // private name
         Memtable::Table::Iterator iter_;
         // this function is useless, we don't and should not use it
-        bool Seek(const Slice& target) override {}
+        bool Seek(const Slice& target) override {
+            return false;
+        }
 
         void SeekToLast() override {}
 
         void Prev() override {}
     };
 
-    // Be careful the Get returns the total memtable entry
-    // if we need to extract the value, we should invoke the extract method
+
     bool Memtable::Get(const Slice& memtable_key, std::string* result) {
         Slice ret;
         bool flag = table_->FindFirstGreaterOrEqual(memtable_key, &ret);
         if (flag == false) {
             return false;
         }
-        result->append(ret.data(), ret.size());
+        ExtractValueFromMemtable(ret, result);
         return true;
     }
 

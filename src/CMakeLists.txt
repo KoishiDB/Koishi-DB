@@ -5,7 +5,9 @@ add_subdirectory(disk)
 add_subdirectory(common)
 
 # add_libray must have files
-add_library(koishidb STATIC ${ALL_OBJECT_FILES})
+add_library(koishidb STATIC ${ALL_OBJECT_FILES}
+
+        )
 
 # target_link_libraries
 target_link_libraries(koishidb

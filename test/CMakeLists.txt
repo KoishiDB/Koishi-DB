@@ -17,9 +17,5 @@ foreach(koishidb_test_source ${KOISHIDB_TEST_SOURCES})
 
     target_link_libraries(${koishidb_test_outputname} koishidb gtest gmock_main)
 
-#    set_target_properties(${koishidb_test_ouputname}
-#            PROPERTIES
-#            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/test"
-#            COMMAND ${bustub_test_name}
-#            )
+
 endforeach()

@@ -151,13 +151,10 @@ namespace koishidb {
 
   // the data_ will auto advance
   // LengthPrefixed -> varint + value
+  // dst->append the data part
   void GetLengthPrefixedSlice(std::string* dst, Slice* src) {
       uint32_t len;
-      Slice tmp = *src; //
       GetVarint32(src, &len);
-      // dst->append
-      size_t offset = src->data() - tmp.data();
-      dst->append(tmp.data(), offset);
       dst->append(src->data(), len);
       src->Advance(len);
   }
@@ -182,11 +179,7 @@ namespace koishidb {
            (static_cast<uint64_t>(buffer[7]) << 56);
   }
 
-  void PutFixed32(std::string* dst, uint32_t value) {
-    char buf[sizeof(value)];
-    EncodeFixed32(buf, value);
-    dst->append(buf, sizeof(buf));
-  }
+
 
   void EncodeFixed32(char* dst, uint32_t value) {
     uint8_t* const buffer = reinterpret_cast<uint8_t*>(dst);
@@ -207,4 +200,17 @@ namespace koishidb {
     buffer[6] = static_cast<uint8_t>(value >> 48);
     buffer[7] = static_cast<uint8_t>(value >> 56);
   }
+
+    void PutFixed32(std::string* dst, uint32_t value) {
+        char buf[sizeof(value)];
+        EncodeFixed32(buf, value);
+        dst->append(buf, sizeof(buf));
+    }
+
+    void PutFixed64(std::string *dst, uint64_t value) {
+        char buf[sizeof(value)];
+        EncodeFixed64(buf, value);
+        dst->append(buf, sizeof(buf));
+    }
+
 };

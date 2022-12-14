@@ -40,8 +40,12 @@ namespace koishidb {
 
     void PutFixed32(std::string* dst, uint32_t value);
 
+    void PutFixed64(std::string *dst, uint64_t value);
+
     void EncodeFixed32(char* dst, uint32_t value);
 
     void EncodeFixed64(char* dst, uint64_t value);
+
+
 };
 #endif

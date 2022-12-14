@@ -6,8 +6,8 @@
 
 // this file defines the constant that may be used in other files
 namespace koishidb {
-    // enum class
-    enum class KeyType {
+    // enum class, specify one byte
+    enum class KeyType: uint8_t {
         kTypeValue = 0x01,
         kTypeDeletion = 0x02,
     };
@@ -19,7 +19,7 @@ namespace koishidb {
     constexpr int kSkipListNodeMaxLevel = 20;
     constexpr int kMemtableMaxSize = 4096; // max mutable memtable size
     constexpr int kWriteBatchReserveCapacity = 20;
-    constexpr int kWriteBatchHeader = 8;
+    constexpr int kWriteBatchHeader = 12;
     constexpr int kL0MaxFiles = 10;// should be modified later
     constexpr int kMaxMemtableSize = 4096;
     constexpr int kBlockSize = 4096; // one block size;

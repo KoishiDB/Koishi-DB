@@ -15,7 +15,7 @@ namespace koishidb {
             std::string value = "user_value" + std::to_string(i);
             std::string cur;
             memtable.Get(CreateMemtableKey(key, 0, "", KeyType::kTypeValue), &cur);
-            EXPECT_EQ(Slice(cur), CreateMemtableKey(key, 0, value, KeyType::kTypeValue));
+            EXPECT_EQ(cur, value);
         }
     }
 

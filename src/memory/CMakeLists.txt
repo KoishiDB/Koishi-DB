@@ -3,6 +3,7 @@ add_library(
         OBJECT
         hash.cc
         memtable.cc
+        write_batch.cc
 )
 
 # TARGET_OBJECTS

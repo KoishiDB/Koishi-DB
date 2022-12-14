@@ -6,7 +6,11 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # Generate the compile_commands.json
 set(CMAKE_CXX_STANDARD 17) # we need to use cxx 17 features
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-option(KOISHIDB_BUILD_TEST "Build KoishiDB test (currently not enabled)" OFF) # the option variable for enable the test
+option(KOISHIDB_BUILD_TEST "Build KoishiDB test (currently not enabled)" ON) # the option variable for enable the test
+
+if(${KOISHIDB_BUILD_TEST})
+    add_definitions(-DDEBUG)
+endif()
 
 # set include path
 set(KOISHIDB_SRC_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/src/include)

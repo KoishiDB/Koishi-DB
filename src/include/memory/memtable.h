@@ -1,7 +1,7 @@
 #ifndef SRC_INCLUDE_MEMORY_MEMTABLE_H
 #define SRC_INCLUDE_MEMORY_MEMTABLE_H
 
-#include "memory/sstable.h"
+#include "memory/table.h"
 #include "memory/skiplist.h"
 #include "util/comparator.h"
 #include "util/iterator.h"
