@@ -1,4 +1,5 @@
 #include "db_impl.h"
+#include "disk/builder.h"
 #include <condition_variable>
 #include <mutex>
 #include <thread>
@@ -16,7 +17,12 @@ namespace koishidb {
         std::condition_variable cv;
     };
 
+    // manifest format
+    // first.
+    //
     DBimpl::DBimpl(): memtable_(new Memtable()), immutable_memtable_(nullptr) {
+        // Read the manifest
+        //
     }
 
     DBimpl::~DBimpl() {
@@ -144,20 +150,34 @@ namespace koishidb {
         return result;
     }
 
-
-    void DBimpl::CompactMemtable() {
-
+    // REQUIRE: get the exclusive lock
+    // TODO, we need to handler the error time.
+    Status DBimpl::CompactMemtable() {
+        std::string new_sstable_name = "sstable_" + sstable_number_++;
+        FileMeta* new_file_meta = new FileMeta();
+        this->file_metas_.push_back(new_file_meta);
+        Status s = BuildTable(new_sstable_name, new_file_meta, this->immutable_memtable_->NewIterator());
+        if (!s.ok()) {
+            // recover
+            sstable_number_--;
+            return s;
+        }
     }
     // the true compaction here
     // REQUIRE: get the exclusive lock
     void DBimpl::BackGroundCompaction() {
         if (immutable_memtable_ != nullptr) {
-            CompactMemtable();
+            Status s = CompactMemtable();
+            if (s.ok()) {
+                delete immutable_memtable_;
+                immutable_memtable_ = nullptr;
+            }
             return ;
         }
         // other conditions
     }
 
+    // BackGroundCall should get the mutex first
     void DBimpl::BackGroundCall() {
       // should get the mutex;
       std::unique_lock<std::shared_mutex> wlock(rwlock_);
@@ -171,7 +191,7 @@ namespace koishidb {
         // should create a thread to compact and never block it;
         // already scheduled
         if (background_compaction_schedule_ == true) {
-
+            //
         } else if (immutable_memtable_ != nullptr) {
             // TODO: need to add major compaction later
             std::thread compaction_task([this](){

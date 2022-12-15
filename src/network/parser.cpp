@@ -29,7 +29,6 @@ namespace koishidb {
         read_storage.append(buf, n);
 
 
-
         parse_all(conn, conn_fd);
         return true;
     }

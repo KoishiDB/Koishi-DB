@@ -13,10 +13,10 @@ namespace koishidb {
     struct FileMeta {
         uint64_t file_size;
         uint64_t number;
-        int refs;
         InternalKey smallest_key;
         InternalKey largest_key;
     };
+
 
 
 class BlockHandle {
@@ -113,6 +113,11 @@ std::optional<std::unique_ptr<BlockContent>> ReadBlock(RandomAccessFile* file, c
 
 // Print the formatted file meta for debugging
 void PrintFileMeta(FileMeta& meta);
+
+void EncodeFileMeta(FileMeta* file_meta, WritableFile& file);
+
+void DecodeFileMeta(FileMeta* file_meta, Slice* slice);
+
 };
 
 #endif

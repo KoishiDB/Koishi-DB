@@ -3,6 +3,7 @@
 
 #include "db.h"
 #include "memory/memtable.h"
+#include "common/status.h"
 #include <deque>
 #include <shared_mutex>
 #include <mutex>
@@ -12,6 +13,7 @@
 
 namespace koishidb {
     // Is the scheduler of the DB storage part
+    class FileMeta;
     class DBimpl:public DB {
     private:
         struct Writer; // forward declare
@@ -38,7 +40,7 @@ namespace koishidb {
 
         void BackGroundCompaction();
 
-        void CompactMemtable();
+        Status CompactMemtable();
 
         WriteBatch* BuildWriteBatchGroup(Writer** last_writer);
 
@@ -51,7 +53,11 @@ namespace koishidb {
         Memtable* immutable_memtable_;
         std::condition_variable background_work_finish_signal_; // used to notify the background compaction done
         bool background_compaction_schedule_;
-        SequenceNumber last_sequence_;
+        SequenceNumber last_sequence_; // last_sequence notify the last_key.
+
+
+        std::vector<FileMeta*> file_metas_; // notify the file_meta
+        uint64_t sstable_number_; // notify the newest sstable_number_ that have been not used.
     };
 };
 

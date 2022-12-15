@@ -21,7 +21,7 @@ namespace koishidb {
 
     const char* GetVarint64Ptr(const char* p, const char* limit, uint64_t* value);
 
-    // bool indicate whether the data is valid.
+    // will automate advance the ptr of input
     bool GetVarint64(Slice* input, uint64_t* value);
 
     void PutVarint32(uint32_t value, std::string* dst);

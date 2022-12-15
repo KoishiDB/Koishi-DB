@@ -12,6 +12,7 @@ namespace koishidb {
     // Maybe we can use the option instead
     // You need to check the file_meta->num to find if there is data in iter.
     // The iter should be the memtable iterator for returning the memtable entry
+    // if something wrong happens, this function will automatically remove the file.
     Status BuildTable(const std::string& file_name, FileMeta* file_meta, Iterator* iter) {
         iter->SeekToFirst();
         if (!iter->Valid()) {

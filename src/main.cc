@@ -64,7 +64,6 @@ int main() {
     epoll_helper::create_event(epoll_fd, listen_fd, EPOLLIN);
     while (true) {
         const int active = epoll_wait(epoll_fd, events, MAX_EVENTS, -1);
-        bool error_flag = false;
         for (int i = 0; i < active; i++) {
             const int fd = events[i].data.fd, ev = events[i].events;
             if (fd == listen_fd && (ev & (EPOLLIN | EPOLLERR))) {
