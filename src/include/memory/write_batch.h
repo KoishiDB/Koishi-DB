@@ -74,7 +74,7 @@ namespace koishidb {
 
 #ifdef DEBUG
     // used only for debug
-    std::vector<std::pair<std::string, std::string>> WriteBatch::Iterate() {
+    inline std::vector<std::pair<std::string, std::string>> WriteBatch::Iterate() {
         int count = WriteBatchInternal::Count(this);
         SequenceNumber number = WriteBatchInternal::Sequence(this);
         Slice entries(rep_);

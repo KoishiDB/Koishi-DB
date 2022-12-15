@@ -23,6 +23,7 @@ using koishidb::Parser;
 using koishidb::connection;
 using koishidb::concurrent_hashmap;
 using koishidb::request;
+
 // 1\r\n
 // user_key \r\n    -> Put
 // user_value \r\n
@@ -45,7 +46,7 @@ concurrent_hashmap<int, std::shared_ptr<connection>> connection_storage;
 
 int main() {
     // use unique_ptr to implement RAII to release the resource
-    auto db = std::make_unique<koishidb::DBimpl>();
+    std::unique_ptr<koishidb::DB> db = std::make_unique<koishidb::DBimpl>();
 
     ThreadPool thread_pool(thread_pool_size);
     // Config the listen port
@@ -127,7 +128,6 @@ int main() {
                         return flag;
                     }
                 });
-
             }
             // For not block, we should not invoke the get method of this future
         }

@@ -26,7 +26,7 @@ namespace koishidb {
     //
     DBimpl::DBimpl(): memtable_(new Memtable()), immutable_memtable_(nullptr), cmp_(new InternalKeyComparator()) {
         // read the manifest;
-        if (access("manifest", F_OK) == 0) {
+        if (access("./manifest", F_OK) == -1) {
             // don't have the manifest;
             this->sstable_number_ = 0;
             this->last_sequence_ = 0;
@@ -89,6 +89,7 @@ namespace koishidb {
         }
         this->last_sequence_ = last_sequence;
         this->sstable_number_ = file_meta_count;
+        return Status::OK();
     }
 
     void DBimpl::DumpManifest() {
@@ -252,6 +253,7 @@ namespace koishidb {
             sstable_number_--;
             return s;
         }
+        return s;
     }
     // the true compaction here
     // REQUIRE: get the exclusive lock
