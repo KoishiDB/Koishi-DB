@@ -44,6 +44,9 @@ namespace koishidb {
 
         WriteBatch* BuildWriteBatchGroup(Writer** last_writer);
 
+        Status ReadManifest();
+
+        void DumpManifest();
     private:
         // declare here
         std::deque<Writer* > writers_;
@@ -54,10 +57,10 @@ namespace koishidb {
         std::condition_variable background_work_finish_signal_; // used to notify the background compaction done
         bool background_compaction_schedule_;
         SequenceNumber last_sequence_; // last_sequence notify the last_key.
-
-
+        std::atomic<bool> shutting_down_;
         std::vector<FileMeta*> file_metas_; // notify the file_meta
         uint64_t sstable_number_; // notify the newest sstable_number_ that have been not used.
+        Comparator* cmp_; // in fact is internal key comparator
     };
 };
 

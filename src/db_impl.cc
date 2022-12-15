@@ -1,5 +1,9 @@
+#include <unistd.h>
+#include <fcntl.h>
 #include "db_impl.h"
 #include "disk/builder.h"
+#include "common/option.h"
+#include "disk/random_access_file.h"
 #include <condition_variable>
 #include <mutex>
 #include <thread>
@@ -20,20 +24,86 @@ namespace koishidb {
     // manifest format
     // first.
     //
-    DBimpl::DBimpl(): memtable_(new Memtable()), immutable_memtable_(nullptr) {
-        // Read the manifest
-        //
+    DBimpl::DBimpl(): memtable_(new Memtable()), immutable_memtable_(nullptr), cmp_(new InternalKeyComparator()) {
+        // read the manifest;
+        if (access("manifest", F_OK) == 0) {
+            // don't have the manifest;
+            this->sstable_number_ = 0;
+            this->last_sequence_ = 0;
+        } else {
+            // read the manifest;
+            ReadManifest();
+        }
     }
 
     DBimpl::~DBimpl() {
+        //
+        this->rwlock_.lock();
+        this->shutting_down_.store(true, std::memory_order_release);
+        while (this->background_compaction_schedule_ == true) {
+            std::unique_lock<std::mutex> lock(this->cv_lock_, std::adopt_lock);
+            this->background_work_finish_signal_.wait(lock);
+        }
+        this->rwlock_.unlock();
         if (memtable_ != nullptr) {
+            // before we delete it, we should dump it into the disk.
+            CompactMemtable();
             delete memtable_;
         }
-        if (immutable_memtable_ != nullptr) {
-            delete immutable_memtable_;
+        // Final thing, dump manifest.
+        DumpManifest();
+        // should be nullptr now
+        assert(immutable_memtable_ == nullptr);
+        for (int i = 0;  i < this->file_metas_.size(); i++) {
+            delete this->file_metas_[i];
         }
+        delete cmp_;
     }
 
+    // Manifest Format;
+    // file_meta count (varint32)
+    // last_sequence (varint64)
+    // file_meta encoded1
+    // file_meta encoded2.....
+   Status DBimpl::ReadManifest()  {
+        int fd = ::open("manifest", O_RDONLY);
+        if (fd == -1) {
+            LOG_ERROR("manifest corruption");
+            return Status::Corruption("manifest corruption");
+        }
+        char buf[kManifestReserved];
+        int ptr = 0;
+        int n;
+        while ((n = ::read(fd, buf + ptr, sizeof(buf))) > 0) {
+            ptr += n;
+        }
+        Slice slice(buf, ptr);
+        uint32_t file_meta_count;
+        GetVarint32(&slice, &file_meta_count);
+        uint64_t last_sequence;
+        GetVarint64(&slice, &last_sequence);
+        for (int i = 0; i < file_meta_count; i++) {
+            FileMeta *file_meta;
+            DecodeFileMeta(file_meta, &slice);
+            this->file_metas_.push_back(file_meta);
+        }
+        this->last_sequence_ = last_sequence;
+        this->sstable_number_ = file_meta_count;
+    }
+
+    void DBimpl::DumpManifest() {
+        int fd = ::open("manifest", O_WRONLY | O_CREAT);
+        WritableFile file(fd, "manifest");
+        std::string rep;
+        PutVarint32(this->file_metas_.size(), &rep);
+        PutVarint64(&rep, this->last_sequence_);
+        file.Append(rep.data());
+        file.Flush();
+        for (int i = 0; i < this->file_metas_.size(); i++) {
+            EncodeFileMeta(this->file_metas_[i], file);
+        }
+
+    }
   void DBimpl::Put(const Slice &key, const Slice &value) {
       WriteBatch write_batch;
       write_batch.Put(key, value);
@@ -108,8 +178,28 @@ namespace koishidb {
            return true;
        }
        delete memtable_key.data();
-
-       // Find from the disk
+       Slice internal_key = CreateInternalKey(key, UINT64_MAX, kTypeSeek);
+        // Find from the disk
+       const Option* opt = new Option(new InternalKeyComparator());
+       for (int i = 0; i < this->file_metas_.size(); i++) {
+           auto file_meta = this->file_metas_[i];
+           if (this->cmp_->Compare(file_meta->smallest_key.ToSlice(), internal_key) == -1 && \
+               this->cmp_->Compare(file_meta->largest_key.ToSlice(), internal_key) == 1) {
+               std::string file_name = "sstable_" + file_meta->number;
+               RandomAccessFile random_access_file(file_name);
+               auto sstable_opt = SSTable::Open(opt, &random_access_file, file_meta->file_size);
+               assert(sstable_opt.has_value());
+               auto result = (*sstable_opt)->InternalGet(internal_key);
+               if (!result.has_value()) {
+                   continue;
+               } else {
+                   *value = *result;
+                   delete internal_key.data();
+                   return true;
+               }
+         }
+       }
+       delete internal_key.data();
        return false;
     }
 
@@ -199,7 +289,7 @@ namespace koishidb {
             });
             compaction_task.detach();
         } else {
-
+            // TODO(later): change the design of the disk part
         }
     }
 

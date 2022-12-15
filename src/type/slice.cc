@@ -31,8 +31,6 @@ namespace koishidb {
     bool Slice::operator!=(const Slice &that) const {
         return !(*this == that);
     }
-
-
 // compare < 0 = 0, > 0
     int Slice::Compare(const Slice& that) const {
         const size_t min_len = (size_ < that.size_) ? size_ : that.size_;

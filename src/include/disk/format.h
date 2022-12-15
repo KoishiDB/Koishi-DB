@@ -7,6 +7,7 @@
 #include "common/common.h"
 #include "util/encode.h"
 #include "disk/sstable.h"
+#include "disk/writable_file.h"
 #include <optional>
 namespace koishidb {
 
@@ -116,6 +117,7 @@ void PrintFileMeta(FileMeta& meta);
 
 void EncodeFileMeta(FileMeta* file_meta, WritableFile& file);
 
+// will advance the slice
 void DecodeFileMeta(FileMeta* file_meta, Slice* slice);
 
 };

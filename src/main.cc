@@ -44,7 +44,8 @@ concurrent_hashmap<int, std::shared_ptr<connection>> connection_storage;
 
 
 int main() {
-    koishidb::DB* db = new koishidb::DBimpl();
+    // use unique_ptr to implement RAII to release the resource
+    auto db = std::make_unique<koishidb::DBimpl>();
 
     ThreadPool thread_pool(thread_pool_size);
     // Config the listen port
@@ -134,6 +135,5 @@ int main() {
 
     close(listen_fd);
 
-    delete db;
     return 0;
 }
