@@ -1,6 +1,7 @@
 #include "memory/memtable.h"
-
 #include "common/common.h"
+#include "util/comparator.h"
+#include "type/key.h"
 
 namespace koishidb {
 
@@ -52,6 +53,20 @@ bool Memtable::Get(const Slice& memtable_key, std::string* result) {
   if (flag == false) {
     return false;
   }
+  // ret -> first >=
+  Slice internal_key1, internal_key2;
+  Slice key(memtable_key.data(), memtable_key.size());
+  ExtractInternalKey(ret, &internal_key1);
+  ExtractInternalKey(key, &internal_key2);
+  Slice user_key1, user_key2;
+  SequenceNumber s1, s2;
+  ExtractUserKey(internal_key1, &user_key1, &s1);
+  ExtractUserKey(internal_key2, &user_key2, &s2);
+  InternalKeyComparator cmp;
+  if (user_key1.Compare(user_key2) != 0) {
+    return false;
+  }
+
   ExtractValueFromMemtable(ret, result);
   return true;
 }

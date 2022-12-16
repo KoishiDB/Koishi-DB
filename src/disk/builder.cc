@@ -38,18 +38,15 @@ Status BuildTable(const std::string& file_name, FileMeta* file_meta,
     file_meta->largest_key = TransToInternalKey(internal_key);
 
     // Tidy up the memory data
-    delete internal_key.data();
-    delete value.data();
+    // memory_leak here, need to delete the memtable_key -> TODO later
     iter->Next();
   }
-
   Status s = builder.Finish();
   if (!s.ok()) {
     // build table error, we need to handle the
     Remove(file_name);
     return s;
   }
-  file_meta->number = builder.NumEntries();
   file_meta->file_size = builder.FileSize();
   PrintFileMeta(*file_meta);
 

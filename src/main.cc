@@ -47,7 +47,7 @@ int main() {
   ThreadPool thread_pool(thread_pool_size);
   // Config the listen port
   sockaddr_in server_addr{};
-  server_addr.sin_port = htons(8094);
+  server_addr.sin_port = htons(8096);
   server_addr.sin_family = AF_INET;
   server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
 
@@ -96,6 +96,7 @@ int main() {
             switch (req->op_code_) {
               // Put
               case 1: {
+                LOG_INFO("Received Put op, key %s, value %s", req->key_.data(), req->value_.data());
                 db->Put(req->key_, req->value_);
                 std::string server_answer = "1\r\n";
                 ::write(conn_fd, server_answer.data(), server_answer.size());
@@ -104,8 +105,10 @@ int main() {
               case 2: {
                 auto result = db->Get(req->key_, &req->value_);
                 // Write back
+                LOG_INFO("Received Get op, key %s", req->key_.data());
                 LOG_INFO("%s", req->value_.data());
                 if (result) {
+                  LOG_INFO("success find");
                   std::string server_answer = "1\r\n";
                   server_answer += req->value_;
                   server_answer += "\r\n";

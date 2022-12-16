@@ -50,7 +50,9 @@ DBimpl::~DBimpl() {
   this->rwlock_.unlock();
   if (memtable_ != nullptr) {
     // before we delete it, we should dump it into the disk.
+    immutable_memtable_ = memtable_;
     CompactMemtable();
+    immutable_memtable_ = nullptr;
     delete memtable_;
   }
   // Final thing, dump manifest.
@@ -104,7 +106,9 @@ void DBimpl::DumpManifest() {
   file.Append(rep.data());
   file.Flush();
   for (int i = 0; i < this->file_metas_.size(); i++) {
+    PrintFileMeta(*this->file_metas_[i]);
     EncodeFileMeta(this->file_metas_[i], file);
+    PrintFileMeta(*this->file_metas_[i]);
   }
 }
 void DBimpl::Put(const Slice& key, const Slice& value) {
@@ -143,7 +147,8 @@ void DBimpl::Write(WriteBatch* update) {
   WriteBatch* writer_batch = BuildWriteBatchGroup(&last_writer);
 
   WriteBatchInternal::SetSequence(writer_batch, last_sequence_);
-
+  // update the last_sequence
+  last_sequence_ += WriteBatchInternal::Count(writer_batch);
   writer_batch->InsertAll(memtable_);
 
   while (true) {
@@ -248,11 +253,13 @@ WriteBatch* DBimpl::BuildWriteBatchGroup(Writer** last_writer) {
 // REQUIRE: get the exclusive lock
 // TODO, we need to handler the error time.
 Status DBimpl::CompactMemtable() {
-  std::string new_sstable_name = "sstable_" + sstable_number_++;
+  std::string new_sstable_name = "sstable_" + std::to_string(sstable_number_);
   FileMeta* new_file_meta = new FileMeta();
   this->file_metas_.push_back(new_file_meta);
   Status s = BuildTable(new_sstable_name, new_file_meta,
                         this->immutable_memtable_->NewIterator());
+  new_file_meta->number = sstable_number_;
+  sstable_number_++;
   if (!s.ok()) {
     // recover
     sstable_number_--;

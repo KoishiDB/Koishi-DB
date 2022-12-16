@@ -18,6 +18,12 @@ TEST(DB_test, DBBasciTest) {
     db.Get(user_key, &result);
     EXPECT_EQ(value, result);
   }
+  for (int i = 100; i < 200; i++) {
+    std::string user_key = "user_key" + std::to_string(i);
+    std::string result;
+    bool flag = db.Get(user_key, &result);
+    EXPECT_FALSE(flag);
+  }
 };
 
 TEST(DB_test, DBMultiThreadTest) {

@@ -58,6 +58,7 @@ class LookupKey {
 // use Slice rather Slice& to make the memtable_key untouched
 void ExtractInternalKey(Slice metable_key, Slice* internal_key);
 
+// Use internal_key to extract user_key
 void ExtractUserKey(const Slice& internal_key, Slice* user_key,
                     SequenceNumber* number);
 
