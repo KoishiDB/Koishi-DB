@@ -33,29 +33,29 @@ std::string Status::ToString() const {
     char tmp[30];
     const char *type;
     switch (code()) {
-    case kOk:
-      type = "OK";
-      break;
-    case kNotFound:
-      type = "NotFound: ";
-      break;
-    case kCorruption:
-      type = "Corruption: ";
-      break;
-    case kNotSupported:
-      type = "Not implemented: ";
-      break;
-    case kInvalidArgument:
-      type = "Invalid argument: ";
-      break;
-    case kIOError:
-      type = "IO error: ";
-      break;
-    default:
-      std::snprintf(tmp, sizeof(tmp),
-                    "Unknown code(%d): ", static_cast<int>(code()));
-      type = tmp;
-      break;
+      case kOk:
+        type = "OK";
+        break;
+      case kNotFound:
+        type = "NotFound: ";
+        break;
+      case kCorruption:
+        type = "Corruption: ";
+        break;
+      case kNotSupported:
+        type = "Not implemented: ";
+        break;
+      case kInvalidArgument:
+        type = "Invalid argument: ";
+        break;
+      case kIOError:
+        type = "IO error: ";
+        break;
+      default:
+        std::snprintf(tmp, sizeof(tmp),
+                      "Unknown code(%d): ", static_cast<int>(code()));
+        type = tmp;
+        break;
     }
     std::string result(type);
     uint32_t length;
@@ -64,4 +64,4 @@ std::string Status::ToString() const {
     return result;
   }
 }
-};
+};  // namespace koishidb
