@@ -1,27 +1,26 @@
 #ifndef KOISHIDB_SRC_INCLUDE_DISK_FORMAT_H
 #define KOISHIDB_SRC_INCLUDE_DISK_FORMAT_H
 
-#include "type/slice.h"
-#include "type/key.h"
-#include "common/status.h"
+#include <optional>
+
 #include "common/common.h"
-#include "util/encode.h"
+#include "common/status.h"
 #include "disk/sstable.h"
 #include "disk/writable_file.h"
-#include <optional>
+#include "type/key.h"
+#include "type/slice.h"
+#include "util/encode.h"
 namespace koishidb {
 
-    struct FileMeta {
-        uint64_t file_size;
-        uint64_t number;
-        InternalKey smallest_key;
-        InternalKey largest_key;
-    };
-
-
+struct FileMeta {
+  uint64_t file_size;
+  uint64_t number;
+  InternalKey smallest_key;
+  InternalKey largest_key;
+};
 
 class BlockHandle {
-public:
+ public:
   // Maximum encoding length of a BlockHandle
   enum { kMaxEncodedLength = 10 + 10 };
 
@@ -37,15 +36,16 @@ public:
   void EncodeTo(std::string* dst) const;
   Status DecodeFrom(Slice* input);
 
-private:
+ private:
   uint64_t offset_;
   uint64_t size_;
 };
 
-inline BlockHandle::BlockHandle(): offset_(~static_cast<uint64_t>(0)), size_(~static_cast<uint64_t>(0)) {}
+inline BlockHandle::BlockHandle()
+    : offset_(~static_cast<uint64_t>(0)), size_(~static_cast<uint64_t>(0)) {}
 
 // append to the dst, so we need to use the ptr of string
-inline void BlockHandle::EncodeTo(std::string *dst) const {
+inline void BlockHandle::EncodeTo(std::string* dst) const {
   // Sanity check that all fields have been set
 
   // why we should put it to the format, Because we use the putvarint
@@ -62,12 +62,9 @@ inline Status BlockHandle::DecodeFrom(Slice* input) {
   }
 }
 
-
 // class Footer
 class Footer {
-public:
-
-
+ public:
   Footer() = default;
   Footer(const Footer&) = delete;
   Footer& operator=(const Footer&) = delete;
@@ -87,12 +84,13 @@ public:
   void EncodeTo(std::string* dst);
 
   Status DecodeFrom(Slice* s);
-private:
+
+ private:
   BlockHandle index_block_handle_;
   BlockHandle filter_block_handle_;
 };
 
-inline void Footer::EncodeTo(std::string *dst) {
+inline void Footer::EncodeTo(std::string* dst) {
   int begin = dst->size();
   index_block_handle_.EncodeTo(dst);
   filter_block_handle_.EncodeTo(dst);
@@ -100,17 +98,16 @@ inline void Footer::EncodeTo(std::string *dst) {
   dst->append(paddings, static_cast<char>(0));
 }
 
-inline Status Footer::DecodeFrom(Slice *input) {
+inline Status Footer::DecodeFrom(Slice* input) {
   auto s = index_block_handle_.DecodeFrom(input);
-  if (!s.ok())
-    return s;
+  if (!s.ok()) return s;
   s = filter_block_handle_.DecodeFrom(input);
   return s;
 }
 
-
 // Given the block handle and return the data of the offset.
-std::optional<std::unique_ptr<BlockContent>> ReadBlock(RandomAccessFile* file, const BlockHandle& blockHandle);
+std::optional<std::unique_ptr<BlockContent>> ReadBlock(
+    RandomAccessFile* file, const BlockHandle& blockHandle);
 
 // Print the formatted file meta for debugging
 void PrintFileMeta(FileMeta& meta);
@@ -120,6 +117,6 @@ void EncodeFileMeta(FileMeta* file_meta, WritableFile& file);
 // will advance the slice
 void DecodeFileMeta(FileMeta* file_meta, Slice* slice);
 
-};
+};  // namespace koishidb
 
 #endif

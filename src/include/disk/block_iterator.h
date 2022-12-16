@@ -1,50 +1,48 @@
 #ifndef KOISHIDB_SRC_INCLUDE_DISK_BLOCK_ITERATOR_H
 #define KOISHIDB_SRC_INCLUDE_DISK_BLOCK_ITERATOR_H
 
-#include "util/iterator.h"
-#include "util/comparator.h"
 #include "common/common.h"
+#include "util/comparator.h"
+#include "util/iterator.h"
 // Block iterator 底层是一个
 
 namespace koishidb {
-  struct Block;
-  class Option;
-  class BlockIterator:public Iterator {
-  public:
-      // default the internalkey iterator
-      BlockIterator(Block* block, const Option* opt);
+struct Block;
+class Option;
+class BlockIterator : public Iterator {
+ public:
+  // default the internalkey iterator
+  BlockIterator(Block* block, const Option* opt);
 
+  ~BlockIterator() = default;
 
+  BlockIterator(const BlockIterator& that) = delete;
 
+  BlockIterator& operator=(const BlockIterator& that) = delete;
 
-      ~BlockIterator() = default;
+  Slice Key() const override;
 
-      BlockIterator(const BlockIterator& that) = delete;
+  Slice Value() const override;
 
-      BlockIterator& operator=(const BlockIterator& that) = delete;
+  bool Valid() const override;
 
-      Slice Key() const override;
+  bool Seek(const Slice& target) override;
 
-      Slice Value() const override;
+  void SeekToFirst() override;
 
-      bool Valid() const override;
+  void SeekToLast() override;
 
-      bool Seek(const Slice& target) override;
+  void Next() override;
 
-      void SeekToFirst() override;
+  void Prev() override;
 
-      void SeekToLast() override;
-
-      void Next() override;
-
-      void Prev() override;
-  private:
-      std::string key_;
-      const char* const data_;
-      const size_t size_;
-      const Comparator* const cmp_; // used to compare internal key;
-      uint32_t offset_; // current offset of the data_
-      Slice value_; // the value of the key
-  };
+ private:
+  std::string key_;
+  const char* const data_;
+  const size_t size_;
+  const Comparator* const cmp_;  // used to compare internal key;
+  uint32_t offset_;              // current offset of the data_
+  Slice value_;                  // the value of the key
 };
+};  // namespace koishidb
 #endif

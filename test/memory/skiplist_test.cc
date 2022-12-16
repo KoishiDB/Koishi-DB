@@ -1,126 +1,131 @@
 #include "memory/skiplist.h"
-#include "memory/memtable.h"
-#include "util/util.h"
-#include "gtest/gtest.h"
-
 
 #include <set>
 
-class DoubleComparator {
-public:
-    int Compare(const double& a, const double& b) const {
-        if (a < b) {
-            return -1;
-        } else if (a == b) {
-            return 0;
-        } else {
-            return 1;
-        }
-    }
-};
+#include "gtest/gtest.h"
+#include "memory/memtable.h"
+#include "util/util.h"
 
+class DoubleComparator {
+ public:
+  int Compare(const double& a, const double& b) const {
+    if (a < b) {
+      return -1;
+    } else if (a == b) {
+      return 0;
+    } else {
+      return 1;
+    }
+  }
+};
 
 namespace koishidb {
-    TEST(SkipList_test, SkipListRandomdTest) {
-        srand(0);
-        DoubleComparator cmp;
-        SkipList<double, DoubleComparator> skiplist(&cmp);
-        std::set<double> right;
-        for (int i = 0; i < 10000; ++i) {
-            double x = rand();
-            bool ok = right.insert(x).second;
-            if (ok) {
-                skiplist.Insert(x);
-            }
-        }
-        for (int i = 0; i < 10000; ++i) {
-            double x = rand();
-            auto a = right.lower_bound(x);
-            double b;
-            bool flag = skiplist.FindFirstGreaterOrEqual(x, &b);
-            EXPECT_EQ(flag, a != right.end());
-            if (flag == true) {
-                EXPECT_EQ(*a, b);
-            }
-        }
+TEST(SkipList_test, SkipListRandomdTest) {
+  srand(0);
+  DoubleComparator cmp;
+  SkipList<double, DoubleComparator> skiplist(&cmp);
+  std::set<double> right;
+  for (int i = 0; i < 10000; ++i) {
+    double x = rand();
+    bool ok = right.insert(x).second;
+    if (ok) {
+      skiplist.Insert(x);
     }
-
-
-
-    TEST(SkipList_test, SkipListIteratorTest1) {
-        srand(0);
-        DoubleComparator cmp;
-        SkipList<double, DoubleComparator> skiplist(&cmp);
-        std::set<double> right;
-        for (int i = 0; i < 10000; ++i) {
-            double x = rand();
-            bool ok = right.insert(x).second;
-            if (ok) {
-                skiplist.Insert(x);
-            }
-        }
-
-        std::set<double> result;
-        SkipList<double, DoubleComparator>::Iterator iter(&skiplist);
-        while (iter.Valid()) {
-            result.insert(*iter);
-            ++iter;
-        }
-
-        if (right == result) {
-            EXPECT_EQ(1, 1);
-        } else {
-            EXPECT_EQ(0, 1);
-        }
+  }
+  for (int i = 0; i < 10000; ++i) {
+    double x = rand();
+    auto a = right.lower_bound(x);
+    double b;
+    bool flag = skiplist.FindFirstGreaterOrEqual(x, &b);
+    EXPECT_EQ(flag, a != right.end());
+    if (flag == true) {
+      EXPECT_EQ(*a, b);
     }
-    TEST(SkipList_test, SkipListSliceInteratorTest) {
-        SkipList<Slice, MemtableKeyComparator> skipList(new MemtableKeyComparator());
-        for (int i = 0; i < 10; i++) {
-            std::string key = "user_key" + std::to_string(i);
-            skipList.Insert(CreateMemtableKey(key, 1, "", KeyType::kTypeValue));
-        }
-        SkipList<Slice, MemtableKeyComparator>::Iterator iter(&skipList);
-        for (int i = 0; i < 10; i++) {
-            std::string key = "user_key" + std::to_string(i);
-            Slice memtable_key = CreateMemtableKey(key, 1, "", KeyType::kTypeValue);
-            EXPECT_EQ(memtable_key.ToString(), iter.Key().ToString());
-            iter.Next();
-        }
+  }
+}
+
+TEST(SkipList_test, SkipListIteratorTest1) {
+  srand(0);
+  DoubleComparator cmp;
+  SkipList<double, DoubleComparator> skiplist(&cmp);
+  std::set<double> right;
+  for (int i = 0; i < 10000; ++i) {
+    double x = rand();
+    bool ok = right.insert(x).second;
+    if (ok) {
+      skiplist.Insert(x);
     }
-    // this test still has some question, need to help
-    TEST(SkipList_test, SkipListSliceTest) {
-        SkipList<Slice, MemtableKeyComparator> skipList(new MemtableKeyComparator());
-        Slice memtable_key1 = CreateMemtableKey("user_key1", 1, "value1", KeyType::kTypeValue);
-        skipList.Insert(memtable_key1);
-        Slice memtable_key2 = CreateMemtableKey("user_key2", 2, "value2", KeyType::kTypeValue);
-        skipList.Insert(memtable_key2);
+  }
 
-        Slice result;
-        // Test1, find the memtable_key1
-        bool flag = skipList.FindFirstGreaterOrEqual(CreateMemtableKey("user_key1", 1, "", KeyType::kTypeValue), &result);
-        EXPECT_EQ(flag, true);
-        EXPECT_EQ(result, memtable_key1);
+  std::set<double> result;
+  SkipList<double, DoubleComparator>::Iterator iter(&skiplist);
+  while (iter.Valid()) {
+    result.insert(*iter);
+    ++iter;
+  }
 
-        // Test2, can't find the user_key3
-        flag = skipList.FindFirstGreaterOrEqual(CreateMemtableKey("user_key3", 1, "", KeyType::kTypeValue), &result);
-        EXPECT_EQ(flag, false);
+  if (right == result) {
+    EXPECT_EQ(1, 1);
+  } else {
+    EXPECT_EQ(0, 1);
+  }
+}
+TEST(SkipList_test, SkipListSliceInteratorTest) {
+  SkipList<Slice, MemtableKeyComparator> skipList(new MemtableKeyComparator());
+  for (int i = 0; i < 10; i++) {
+    std::string key = "user_key" + std::to_string(i);
+    skipList.Insert(CreateMemtableKey(key, 1, "", KeyType::kTypeValue));
+  }
+  SkipList<Slice, MemtableKeyComparator>::Iterator iter(&skipList);
+  for (int i = 0; i < 10; i++) {
+    std::string key = "user_key" + std::to_string(i);
+    Slice memtable_key = CreateMemtableKey(key, 1, "", KeyType::kTypeValue);
+    EXPECT_EQ(memtable_key.ToString(), iter.Key().ToString());
+    iter.Next();
+  }
+}
+// this test still has some question, need to help
+TEST(SkipList_test, SkipListSliceTest) {
+  SkipList<Slice, MemtableKeyComparator> skipList(new MemtableKeyComparator());
+  Slice memtable_key1 =
+      CreateMemtableKey("user_key1", 1, "value1", KeyType::kTypeValue);
+  skipList.Insert(memtable_key1);
+  Slice memtable_key2 =
+      CreateMemtableKey("user_key2", 2, "value2", KeyType::kTypeValue);
+  skipList.Insert(memtable_key2);
 
-        // Test3, find the first larger
-        result.Clear();
-        flag = skipList.FindFirstGreaterOrEqual(CreateMemtableKey("user_key1", 0, "", KeyType::kTypeValue), &result);
-        EXPECT_EQ(flag, true);
+  Slice result;
+  // Test1, find the memtable_key1
+  bool flag = skipList.FindFirstGreaterOrEqual(
+      CreateMemtableKey("user_key1", 1, "", KeyType::kTypeValue), &result);
+  EXPECT_EQ(flag, true);
+  EXPECT_EQ(result, memtable_key1);
 
-        EXPECT_EQ(result.ToString(), memtable_key2.ToString());
+  // Test2, can't find the user_key3
+  flag = skipList.FindFirstGreaterOrEqual(
+      CreateMemtableKey("user_key3", 1, "", KeyType::kTypeValue), &result);
+  EXPECT_EQ(flag, false);
 
-        // Test4, insert the delete key and find the newest one;
-        Slice memtable_key3 = CreateMemtableKey("user_key1", 3, "", KeyType::kTypeDeletion);
-        skipList.Insert(memtable_key3);
-        flag = skipList.FindFirstGreaterOrEqual(CreateMemtableKey("user_key1", 4, "", KeyType::kTypeValue), &result);
-        EXPECT_EQ(flag, true);
-        EXPECT_EQ(result, memtable_key3);
+  // Test3, find the first larger
+  result.Clear();
+  flag = skipList.FindFirstGreaterOrEqual(
+      CreateMemtableKey("user_key1", 0, "", KeyType::kTypeValue), &result);
+  EXPECT_EQ(flag, true);
 
-        // Test5, can't find the user_key2 but with snapshot 1;
-        flag = skipList.FindFirstGreaterOrEqual(CreateMemtableKey("user_key2", 1, "", KeyType::kTypeValue), &result);
-        EXPECT_EQ(flag, false);
-    }
-};
+  EXPECT_EQ(result.ToString(), memtable_key2.ToString());
+
+  // Test4, insert the delete key and find the newest one;
+  Slice memtable_key3 =
+      CreateMemtableKey("user_key1", 3, "", KeyType::kTypeDeletion);
+  skipList.Insert(memtable_key3);
+  flag = skipList.FindFirstGreaterOrEqual(
+      CreateMemtableKey("user_key1", 4, "", KeyType::kTypeValue), &result);
+  EXPECT_EQ(flag, true);
+  EXPECT_EQ(result, memtable_key3);
+
+  // Test5, can't find the user_key2 but with snapshot 1;
+  flag = skipList.FindFirstGreaterOrEqual(
+      CreateMemtableKey("user_key2", 1, "", KeyType::kTypeValue), &result);
+  EXPECT_EQ(flag, false);
+}
+};  // namespace koishidb

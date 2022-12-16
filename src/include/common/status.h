@@ -2,12 +2,13 @@
 #define KOISHIDB_SRC_INCLUDE_COMMON_STATUS_H
 #include <algorithm>
 #include <string>
+
 #include "type/slice.h"
 
 namespace koishidb {
 // Borrowed from LevelDB status
 class Status {
-public:
+ public:
   // Create a success status.
   Status() noexcept : state_(nullptr) {}
   ~Status() { delete[] state_; }
@@ -60,7 +61,7 @@ public:
   // Returns the string "OK" for success.
   std::string ToString() const;
 
-private:
+ private:
   enum Code {
     kOk = 0,
     kNotFound = 1,
@@ -99,6 +100,6 @@ inline Status &Status::operator=(Status &&rhs) noexcept {
   return *this;
 }
 
-}; // namespace koishidb
+};  // namespace koishidb
 
-#endif // KOISHIDB_STATUS_H
+#endif  // KOISHIDB_STATUS_H

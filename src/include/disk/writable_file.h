@@ -2,47 +2,47 @@
 #define KOISHIDB_SRC_INCLUDE_DISK_WRITABLE_FILE_H
 
 #include <unistd.h>
+
 #include <string>
+
 #include "common/common.h"
 #include "common/status.h"
 
 namespace koishidb {
 
-  // Only Support POSIX system call
-  // May change it later -> by passing to filename and open the file and can hide the file descriptor
-  // WritableFile can not be copied but can be moved
-  class WritableFile {
-  public:
-    WritableFile(int fd, std::string filename): pos_(0), filename_(filename), dir_(Dirname(filename)), fd_(fd) {}
+// Only Support POSIX system call
+// May change it later -> by passing to filename and open the file and can hide
+// the file descriptor WritableFile can not be copied but can be moved
+class WritableFile {
+ public:
+  WritableFile(int fd, std::string filename)
+      : pos_(0), filename_(filename), dir_(Dirname(filename)), fd_(fd) {}
 
-    ~WritableFile() {
-      if (fd_ > 0) {
-        ::close(fd_);
-      }
+  ~WritableFile() {
+    if (fd_ > 0) {
+      ::close(fd_);
     }
+  }
 
-    Status Append(const Slice& content);
+  Status Append(const Slice& content);
 
-    Status Flush();
+  Status Flush();
 
-  private:
+ private:
+  // static function can't use the unstatic memeber
+  Status WriteUnbuffered(const char* data, size_t size);
 
+  static std::string Dirname(const std::string& filename);
 
-    // static function can't use the unstatic memeber
-    Status WriteUnbuffered(const char* data, size_t size);
+  static Status PosixError(const std::string& context, int error_number);
 
-    static std::string Dirname(const std::string& filename);
-
-    static Status PosixError(const std::string& context, int error_number);
-
-
-    // TODO, can add the manifest later to restore
-    std::string dir_;
-    std::string filename_;
-    int fd_;
-    size_t pos_;
-    char buf_[kWritableFileBuffer];
-  };
+  // TODO, can add the manifest later to restore
+  std::string dir_;
+  std::string filename_;
+  int fd_;
+  size_t pos_;
+  char buf_[kWritableFileBuffer];
 };
+};  // namespace koishidb
 
 #endif

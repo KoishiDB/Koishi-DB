@@ -36,13 +36,16 @@
 #include <ctime>
 #include <string>
 
+using cstr = const char *;
+static constexpr auto PastLastSlash(cstr a, cstr b) -> cstr {
+  return *a == '\0'  ? b
+         : *b == '/' ? PastLastSlash(a + 1, a + 1)
+                     : PastLastSlash(a + 1, b);
+}
 
-    using cstr = const char *;
-    static constexpr auto PastLastSlash(cstr a, cstr b) -> cstr {
-    return *a == '\0' ? b : *b == '/' ? PastLastSlash(a + 1, a + 1) : PastLastSlash(a + 1, b);
-    }
-
-static constexpr auto PastLastSlash(cstr a) -> cstr { return PastLastSlash(a, a); }
+static constexpr auto PastLastSlash(cstr a) -> cstr {
+  return PastLastSlash(a, a);
+}
 
 #define __SHORT_FILE__                            \
   ({                                              \
@@ -166,35 +169,35 @@ void OutputLogHeader(const char *file, int line, const char *func, int level);
 
 // Output log message header in this format: [type] [file:line:function] time -
 // ex: [ERROR] [somefile.cpp:123:doSome()] 2008/07/06 10:00:00 -
-inline void OutputLogHeader(const char *file, int line, const char *func, int level) {
-    time_t t = ::time(nullptr);
-    tm *curTime = localtime(&t);  // NOLINT
-    char time_str[32];            // FIXME
-    ::strftime(time_str, 32, LOG_LOG_TIME_FORMAT, curTime);
-    const char *type;
-    switch (level) {
-        case LOG_LEVEL_ERROR:
-            type = "ERROR";
-            break;
-        case LOG_LEVEL_WARN:
-            type = "WARN ";
-            break;
-        case LOG_LEVEL_INFO:
-            type = "INFO ";
-            break;
-        case LOG_LEVEL_DEBUG:
-            type = "DEBUG";
-            break;
-        case LOG_LEVEL_TRACE:
-            type = "TRACE";
-            break;
-        default:
-            type = "UNKWN";
-    }
-    // PAVLO: DO NOT CHANGE THIS
-    ::fprintf(LOG_OUTPUT_STREAM, "%s [%s:%d:%s] %s - ", time_str, file, line, func, type);
-    }
-
-
+inline void OutputLogHeader(const char *file, int line, const char *func,
+                            int level) {
+  time_t t = ::time(nullptr);
+  tm *curTime = localtime(&t);  // NOLINT
+  char time_str[32];            // FIXME
+  ::strftime(time_str, 32, LOG_LOG_TIME_FORMAT, curTime);
+  const char *type;
+  switch (level) {
+    case LOG_LEVEL_ERROR:
+      type = "ERROR";
+      break;
+    case LOG_LEVEL_WARN:
+      type = "WARN ";
+      break;
+    case LOG_LEVEL_INFO:
+      type = "INFO ";
+      break;
+    case LOG_LEVEL_DEBUG:
+      type = "DEBUG";
+      break;
+    case LOG_LEVEL_TRACE:
+      type = "TRACE";
+      break;
+    default:
+      type = "UNKWN";
+  }
+  // PAVLO: DO NOT CHANGE THIS
+  ::fprintf(LOG_OUTPUT_STREAM, "%s [%s:%d:%s] %s - ", time_str, file, line,
+            func, type);
+}
 
 #endif

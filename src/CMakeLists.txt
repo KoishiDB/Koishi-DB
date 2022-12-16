@@ -7,7 +7,6 @@ add_subdirectory(network)
 
 # add_libray must have files
 add_library(koishidb STATIC ${ALL_OBJECT_FILES}
-        db.cc
         db_impl.cc
         )
 

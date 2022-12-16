@@ -4,12 +4,12 @@
 #include <string>
 #include <unordered_map>
 namespace koishidb {
-    using std::string, std::unordered_map;
-    class request {
-    public:
-        int op_code_;
-        std::string key_, value_;
-    };
+using std::string, std::unordered_map;
+class request {
+ public:
+  int op_code_;
+  std::string key_, value_;
 };
+};  // namespace koishidb
 
 #endif

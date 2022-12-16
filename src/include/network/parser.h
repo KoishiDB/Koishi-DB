@@ -1,24 +1,26 @@
 #ifndef KOISHIDB_SRC_INCLUDE_PARSER_H
 #define KOISHIDB_SRC_INCLUDE_PARSER_H
 #include <netdb.h>
-#include <cstring>
 #include <netinet/in.h>
 #include <sys/epoll.h>
+
+#include <cstring>
 #include <fstream>
 #include <memory>
+
 #include "network/connection.h"
 
 namespace koishidb {
-    class Parser {
-    public:
-        static void print_client_info(sockaddr* client_addr, socklen_t client_addr_len);
+class Parser {
+ public:
+  static void print_client_info(sockaddr* client_addr,
+                                socklen_t client_addr_len);
 
-        static bool read(int conn_fd, std::shared_ptr<connection> conn);
+  static bool read(int conn_fd, std::shared_ptr<connection> conn);
 
-    private:
-        static void parse_all(std::shared_ptr<connection> conn, int conn_fd);
-
-    };
-
+ private:
+  static void parse_all(std::shared_ptr<connection> conn, int conn_fd);
 };
+
+};  // namespace koishidb
 #endif

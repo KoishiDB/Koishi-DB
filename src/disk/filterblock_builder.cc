@@ -1,13 +1,14 @@
 #include "disk/filterblock_builder.h"
+
 #include "common/common.h"
 #include "util/encode.h"
 
 namespace koishidb {
-void FilterBlockBuilder::AddKey(const Slice &key) {
-     Slice k = key;
-     start_.push_back(keys_.size());
-     // string -> append method
-     keys_.append(key.data(), key.size());
+void FilterBlockBuilder::AddKey(const Slice& key) {
+  Slice k = key;
+  start_.push_back(keys_.size());
+  // string -> append method
+  keys_.append(key.data(), key.size());
 }
 
 void FilterBlockBuilder::StartBlock(uint64_t block_offset) {
@@ -57,5 +58,4 @@ Slice FilterBlockBuilder::Finish() {
   return Slice(result_);
 }
 
-
-};
+};  // namespace koishidb

@@ -7,12 +7,12 @@
 namespace koishidb {
 
 class FilterBlockReader {
-public:
+ public:
   // REQUIRES: "contents" must stay alive !
   FilterBlockReader(const Slice& contents);
   bool KeyMayMatch(uint64_t block_offset, const Slice& key);
 
-private:
+ private:
   const BloomFilter bloom_;
   const char* data_;    // Pointer to filter data (at block-start)
   const char* offset_;  // Pointer to beginning of offset array (at block-end)
@@ -20,6 +20,6 @@ private:
   size_t base_lg_;      // Encoding parameter (see kFilterBaseLg in .cc file)
 };
 
-};
+};  // namespace koishidb
 
 #endif

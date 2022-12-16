@@ -2,50 +2,49 @@
 #define KOISHIDB_SRC_INCLUDE_UTIL_ENCODE_H
 
 // use varint to compress data and save memory
-#include <cstddef>
 #include <cassert>
+#include <cstddef>
 
 #include "type/slice.h"
 
 namespace koishidb {
-    
-    size_t EncodeVarint32(uint32_t value, char* dst);
 
-    size_t EncodeVarint32Length(uint32_t value);
+size_t EncodeVarint32(uint32_t value, char* dst);
 
-    char* EncodeVarint64(char* dst, uint64_t v);
+size_t EncodeVarint32Length(uint32_t value);
 
-    void PutVarint64(std::string* dst, uint64_t v);
+char* EncodeVarint64(char* dst, uint64_t v);
 
-    const char* DecodeVarint32(const char* dst, uint32_t* value);
+void PutVarint64(std::string* dst, uint64_t v);
 
-    const char* GetVarint64Ptr(const char* p, const char* limit, uint64_t* value);
+const char* DecodeVarint32(const char* dst, uint32_t* value);
 
-    // will automate advance the ptr of input
-    bool GetVarint64(Slice* input, uint64_t* value);
+const char* GetVarint64Ptr(const char* p, const char* limit, uint64_t* value);
 
-    void PutVarint32(uint32_t value, std::string* dst);
+// will automate advance the ptr of input
+bool GetVarint64(Slice* input, uint64_t* value);
 
-    void GetVarint32(Slice* dst, uint32_t* value);
+void PutVarint32(uint32_t value, std::string* dst);
 
-    void GetFixedBytes(Slice* dst, Slice* result, size_t n);
+void GetVarint32(Slice* dst, uint32_t* value);
 
-    void PutLengthPrefixedSlice(std::string* dst, const Slice& value);
+void GetFixedBytes(Slice* dst, Slice* result, size_t n);
 
-    void GetLengthPrefixedSlice(std::string* dst, Slice* src);
+void PutLengthPrefixedSlice(std::string* dst, const Slice& value);
 
-    uint32_t DecodeFixed32(const char* ptr);
+void GetLengthPrefixedSlice(std::string* dst, Slice* src);
 
-    uint64_t DecodeFixed64(const char* ptr);
+uint32_t DecodeFixed32(const char* ptr);
 
-    void PutFixed32(std::string* dst, uint32_t value);
+uint64_t DecodeFixed64(const char* ptr);
 
-    void PutFixed64(std::string *dst, uint64_t value);
+void PutFixed32(std::string* dst, uint32_t value);
 
-    void EncodeFixed32(char* dst, uint32_t value);
+void PutFixed64(std::string* dst, uint64_t value);
 
-    void EncodeFixed64(char* dst, uint64_t value);
+void EncodeFixed32(char* dst, uint32_t value);
 
+void EncodeFixed64(char* dst, uint64_t value);
 
-};
+};  // namespace koishidb
 #endif
