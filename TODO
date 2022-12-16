@@ -1,5 +1,5 @@
 !TODO
-1. Add the internal key unit test.
-2. Set up the CI
-3. Complete the table builder part.
-4. Use the clang-tidy to format the code
+1. Set up the CI
+2. fix the memory leak error
+3. add the benchmark test
+4. add the major compaction
