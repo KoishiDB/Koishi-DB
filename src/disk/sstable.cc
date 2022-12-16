@@ -127,8 +127,13 @@ Iterator* SSTable::NewIterator() const {
 void PrintFileMeta(FileMeta& meta) {
   LOG_INFO("file size %d", meta.file_size);
   LOG_INFO("file number %d", meta.file_size);
-  LOG_INFO("smallest key %s", meta.smallest_key.ToString().data());
-  LOG_INFO("lagrest key %s", meta.largest_key.ToString().data());
+  Slice smallest_key = meta.smallest_key.ToSlice(), largest_key = meta.largest_key.ToSlice();
+  Slice user_key1, user_key2;
+  SequenceNumber s1, s2;
+  ExtractUserKey(smallest_key, &user_key1, &s1);
+  ExtractUserKey(largest_key, &user_key2,&s2);
+  LOG_INFO("smallest key's user_key %s, sequence number %lld", std::string(user_key1.data(), user_key1.size()).data(), s1);
+  LOG_INFO("lagrest key's user_key %s, sequence number %lld",  std::string(user_key2.data(), user_key2.size()).data(), s2);
 }
 
 void EncodeFileMeta(FileMeta* file_meta, WritableFile& file) {
@@ -142,24 +147,24 @@ void EncodeFileMeta(FileMeta* file_meta, WritableFile& file) {
   PutVarint64(&rep, file_meta->largest_key.ToSlice().size());
   rep.append(file_meta->largest_key.ToSlice().data(),
              file_meta->largest_key.ToSlice().size());
-  file.Append(rep.data());
+  file.Append(Slice(rep.data(), rep.size()));
   file.Flush();
 }
 
 // we can't use RandomAccessFile To Read the file_meta
 // Because we don't have appropriate api.
-void DecodeFileMeta(FileMeta* file_meta, Slice* slice) {
-  file_meta = new FileMeta();
-  GetVarint64(slice, &file_meta->file_size);
-  GetVarint64(slice, &file_meta->number);
+void DecodeFileMeta(FileMeta** file_meta, Slice* slice) {
+  (*file_meta) = new FileMeta();
+  GetVarint64(slice, &(*file_meta)->file_size);
+  GetVarint64(slice, &(*file_meta)->number);
   uint64_t smallest_key_len;
   GetVarint64(slice, &smallest_key_len);
-  file_meta->smallest_key =
+  (*file_meta)->smallest_key =
       TransToInternalKey(Slice(slice->data(), smallest_key_len));
   slice->Advance(smallest_key_len);
   uint64_t largest_key_len;
   GetVarint64(slice, &largest_key_len);
-  file_meta->smallest_key =
+  (*file_meta)->largest_key =
       TransToInternalKey(Slice(slice->data(), largest_key_len));
   slice->Advance(largest_key_len);
 }

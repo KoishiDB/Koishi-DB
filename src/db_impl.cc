@@ -31,8 +31,8 @@ DBimpl::DBimpl()
   // read the manifest;
   if (access("./manifest", F_OK) == -1) {
     // don't have the manifest;
-    this->sstable_number_ = 0;
-    this->last_sequence_ = 0;
+    this->sstable_number_ = 1;
+    this->last_sequence_ = 1;
   } else {
     // read the manifest;
     ReadManifest();
@@ -89,16 +89,17 @@ Status DBimpl::ReadManifest() {
   GetVarint64(&slice, &last_sequence);
   for (int i = 0; i < file_meta_count; i++) {
     FileMeta* file_meta;
-    DecodeFileMeta(file_meta, &slice);
+    DecodeFileMeta(&file_meta, &slice);
     this->file_metas_.push_back(file_meta);
   }
   this->last_sequence_ = last_sequence;
   this->sstable_number_ = file_meta_count;
+  ::close(fd);
   return Status::OK();
 }
 
 void DBimpl::DumpManifest() {
-  int fd = ::open("manifest", O_WRONLY | O_CREAT);
+  int fd = ::open("manifest", O_WRONLY | O_CREAT, 0777);
   WritableFile file(fd, "manifest");
   std::string rep;
   PutVarint32(this->file_metas_.size(), &rep);
@@ -108,7 +109,6 @@ void DBimpl::DumpManifest() {
   for (int i = 0; i < this->file_metas_.size(); i++) {
     PrintFileMeta(*this->file_metas_[i]);
     EncodeFileMeta(this->file_metas_[i], file);
-    PrintFileMeta(*this->file_metas_[i]);
   }
 }
 void DBimpl::Put(const Slice& key, const Slice& value) {
@@ -194,7 +194,7 @@ bool DBimpl::Get(const Slice& key, std::string* value) {
             -1 &&
         this->cmp_->Compare(file_meta->largest_key.ToSlice(), internal_key) ==
             1) {
-      std::string file_name = "sstable_" + file_meta->number;
+      std::string file_name = "sstable_" + std::to_string(file_meta->number);
       RandomAccessFile random_access_file(file_name);
       auto sstable_opt =
           SSTable::Open(opt, &random_access_file, file_meta->file_size);

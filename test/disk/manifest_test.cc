@@ -40,17 +40,18 @@ TEST(Manifest_test, BasicTest) {
     data.append(buf, n);
   }
   Slice s = data;
-  DecodeFileMeta(&file_meta1, &s);
-  DecodeFileMeta(&file_meta2, &s);
+  FileMeta* meta1, *meta2;
+  DecodeFileMeta(&meta1, &s);
+  DecodeFileMeta(&meta2, &s);
   EXPECT_EQ(s.size(), 0);
-  EXPECT_EQ(file_meta1.number, 2);
-  EXPECT_EQ(file_meta1.file_size, 1412412);
-  EXPECT_EQ(file_meta1.smallest_key.ToString(), "user_key1111");
-  EXPECT_EQ(file_meta1.largest_key.ToString(), "user_key2222");
-  EXPECT_EQ(file_meta2.number, 321);
-  EXPECT_EQ(file_meta2.file_size, 14122);
-  EXPECT_EQ(file_meta2.smallest_key.ToString(), "user_key3333");
-  EXPECT_EQ(file_meta2.largest_key.ToString(), "user_key4444");
+  EXPECT_EQ(meta1->number, 2);
+  EXPECT_EQ(meta1->file_size, 1412412);
+  EXPECT_EQ(meta1->smallest_key.ToString(), "user_key1111");
+  EXPECT_EQ(meta1->largest_key.ToString(), "user_key2222");
+  EXPECT_EQ(meta2->number, 321);
+  EXPECT_EQ(meta2->file_size, 14122);
+  EXPECT_EQ(meta2->smallest_key.ToString(), "user_key3333");
+  EXPECT_EQ(meta2->largest_key.ToString(), "user_key4444");
   // tidy up
   Remove(temp_file);
 }

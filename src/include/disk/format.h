@@ -14,7 +14,7 @@ namespace koishidb {
 
 struct FileMeta {
   uint64_t file_size;
-  uint64_t number;
+  uint64_t number; // sstable_number ->
   InternalKey smallest_key;
   InternalKey largest_key;
 };
@@ -115,7 +115,7 @@ void PrintFileMeta(FileMeta& meta);
 void EncodeFileMeta(FileMeta* file_meta, WritableFile& file);
 
 // will advance the slice
-void DecodeFileMeta(FileMeta* file_meta, Slice* slice);
+void DecodeFileMeta(FileMeta** file_meta, Slice* slice);
 
 };  // namespace koishidb
 
